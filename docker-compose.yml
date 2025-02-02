@@ -1,0 +1,45 @@
+version: '3.9'
+
+services:
+
+  db:
+    image: postgres:15.1
+    environment:
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis
+    command: redis-server --requirepass password
+    ports:
+      - "6379:6379"
+      
+  tor_proxy:
+    image: dockage/tor-privoxy
+    ports:
+      - "9050:9050"  # Tor proxy
+      - "9051:9051"  # Tor control port
+      - "8118:8118"  # Privoxy
+
+  socks1:
+    image: serjs/go-socks5-proxy
+    environment:
+      - PROXY_PORT=1080
+      
+  socks2:
+    image: serjs/go-socks5-proxy
+    environment:
+      - PROXY_PORT=1080
+
+  application:
+    build:
+      context: .
+    image: "application"
+    #environments:
+    #  - SETTINGS=/workspaces/ruswift/.devcontainer/cfg.yml
+    depends_on:
+      - db
+
+volumes:
+  db-data:

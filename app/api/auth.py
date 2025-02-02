@@ -8,11 +8,11 @@ from django.http import HttpResponse, HttpRequest, QueryDict
 from django.utils.translation import gettext as _
 from django.conf import settings
 
-from exchange.entities import (
+from entities import (
     Session as AccountSession, Credential as AccountCredential,
     Account, GrantedAccount, AnonymousAccount
 )
-from exchange.reposiroty import (
+from reposiroty import (
     AccountCredentialRepository, AccountSessionRepository, AccountRepository
 )
 

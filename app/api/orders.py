@@ -7,20 +7,20 @@ from django.http import (
     HttpRequest
 )
 
-from api.lib import BaseResource, MethodMapping, action
-from api.lib.mixins import MixinCreateOne
+from lib import BaseResource, MethodMapping, action
+from lib.mixins import MixinCreateOne
 from pydantic import BaseModel, Field
 
-from exchange.core import utc_now_float
-from exchange.entities import (
+from core import utc_now_float
+from entities import (
     Order, PaymentDetails, CardDetails, Ledger, Account, PaymentRequest,
     MerchantAccount
 )
-from exchange.reposiroty import (
+from reposiroty import (
     LedgerRepository, AccountRepository, StorageRepository
 )
-from exchange.api import BaseExchangeController, AuthControllerMixin
-from exchange.microledger import (
+from api import BaseExchangeController, AuthControllerMixin
+from microledger import (
     MassPaymentMicroLedger, DatabasePaymentConsensus,
     PaymentRequestMicroLedger
 )

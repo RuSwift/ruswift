@@ -1,11 +1,11 @@
 from typing import Any, List, Optional
 
-from api.lib import BaseResource
+from lib import BaseResource
 
-from exchange.entities import Ledger, MerchantAccount
-from exchange.reposiroty import LedgerRepository
-from exchange.api import BaseExchangeController, AuthControllerMixin
-from exchange.context import context
+from entities import Ledger, MerchantAccount
+from reposiroty import LedgerRepository
+from api import BaseExchangeController, AuthControllerMixin
+from context import context
 
 
 class LedgerResource(BaseResource):

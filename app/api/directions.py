@@ -4,24 +4,24 @@ from collections import defaultdict
 
 import pydantic
 from pydantic import BaseModel
-from api.lib import BaseResource
-from api.lib.mixins import MixinUpdateOne, MixinDeleteOne, MixinCreateOne
+from lib import BaseResource
+from lib.mixins import MixinUpdateOne, MixinDeleteOne, MixinCreateOne
 from django.conf import settings
 from django.http import HttpResponseBadRequest
 
-from exchange.core import float_to_datetime, secs_delta, utc_now_float
-from exchange.cache import Cache
-from exchange.entities import (
+from core import float_to_datetime, secs_delta, utc_now_float
+from cache import Cache
+from entities import (
     Direction, Payment, Currency, PaymentMethod, CashMethod, Network
 )
-from exchange.reposiroty import (
+from reposiroty import (
     DirectionRepository, CurrencyRepository, PaymentMethodRepository,
     NetworkRepository, PaymentRepository, CashMethodRepository
 )
-from exchange.merchants import (
+from merchants import (
     MerchantRatios, EngineVariable, P2PEngineVariable
 )
-from exchange.api import BaseExchangeController, AuthControllerMixin
+from api import BaseExchangeController, AuthControllerMixin
 
 
 class ComplexPayment(BaseModel):

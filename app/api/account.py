@@ -9,30 +9,30 @@ from django.http import (
     HttpResponseForbidden, HttpResponse, HttpResponseBadRequest
 )
 
-from api.lib import BaseResource, action
-from api.lib.mixins import MixinUpdateOne, MixinCreateOne, MixinDeleteOne
+from lib import BaseResource, action
+from lib.mixins import MixinUpdateOne, MixinCreateOne, MixinDeleteOne
 
-from exchange.core import (
+from core import (
     load_class, utc_now_float, generate_digit_str, trim_account_uid
 )
-from exchange.kyc import (
+from kyc import (
     BaseKYCProvider, MTSKYCProvider, BeOrgKYCProvider, FakeKYCProvider
 )
-from exchange.entities import (
+from entities import (
     Account, VerifiedDocument, AccountKYC, DocumentPhoto, SelfiePhoto,
     OrganizationDocument, AccountFields, MerchantMeta, UrlPaths, Identity,
     DIDSettings, AccountVerifiedFields, AnonymousAccount
 )
-from exchange.cache import Cache
-from exchange.entities.auth import MassPaymentsCfg
-from exchange.api import BaseExchangeController
-from exchange.reposiroty import (
+from cache import Cache
+from entities.auth import MassPaymentsCfg
+from api import BaseExchangeController
+from reposiroty import (
     AccountRepository, LedgerRepository, AccountCredentialRepository,
     StorageRepository
 )
-from exchange.api.utils import configure_mass_payments_ledger
-from exchange.api.auth import BaseAuth, AccountCredential
-from exchange.api.kyc import MTSKYCController
+from api.utils import configure_mass_payments_ledger
+from api.auth import BaseAuth, AccountCredential
+from api.kyc import MTSKYCController
 
 
 class AccountResource(BaseResource):

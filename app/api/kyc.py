@@ -10,20 +10,20 @@ from django.conf import settings
 from django.http import HttpResponse, HttpResponseBadRequest
 from pydantic import Field
 
-from api.lib import BaseResource, action
-from api.lib.mixins import MixinCreateOne, MixinDeleteOne
+from lib import BaseResource, action
+from lib.mixins import MixinCreateOne, MixinDeleteOne
 
-from exchange.core import utc_now_float, load_class
-from exchange.entities import (
+from core import utc_now_float, load_class
+from entities import (
     VerifiedDocument, AccountFields, Account, StorageItem,
     DocumentPhoto, SelfiePhoto, AccountKYC, AccountKYCPhotos
 )
-from exchange.api import BaseExchangeController
-from exchange.reposiroty import (
+from api import BaseExchangeController
+from reposiroty import (
     KYCPhotoRepository, AccountRepository, StorageRepository
 )
-from exchange.context import context as app_context
-from exchange.kyc import BaseKYCProvider, MTSKYCProvider
+from context import context as app_context
+from kyc import BaseKYCProvider, MTSKYCProvider
 
 
 class KYCDocument(BaseResource):

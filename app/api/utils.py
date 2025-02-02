@@ -1,4 +1,4 @@
-from exchange.entities import ExchangeConfig, Identity, Ledger
+from entities import ExchangeConfig, Identity, Ledger
 
 
 def configure_mass_payments_ledger(

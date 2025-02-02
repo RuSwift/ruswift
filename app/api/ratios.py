@@ -7,11 +7,11 @@ from xml.etree.ElementTree import (
 from pydantic import BaseModel
 from django.http import HttpResponse
 
-from api.lib import BaseResource
-from exchange.core.utils import float_to_datetime
-from exchange.context import context
-from exchange.api import BaseExchangeController
-from exchange.merchants import (
+from lib import BaseResource
+from core.utils import float_to_datetime
+from context import context
+from api import BaseExchangeController
+from merchants import (
     MerchantRatios, load_directions
 )
 

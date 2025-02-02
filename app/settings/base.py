@@ -44,7 +44,7 @@ class APICfg(BaseModel):
 
 
 class KYC(BaseModel):
-    provider_class: str = 'exchange.kyc.MTSKYCProvider'
+    provider_class: str = 'kyc.MTSKYCProvider'
 
 
 class RatioEngineClassConfig(BaseModel):
@@ -92,7 +92,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    #'app'
+    'exchange'
 ]
 
 MIDDLEWARE = [

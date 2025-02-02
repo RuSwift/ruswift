@@ -9,19 +9,19 @@ from django.http import (
     HttpResponse, HttpResponseForbidden, HttpResponseBadRequest
 )
 
-from api.lib import BaseResource, action
+from lib import BaseResource, action
 
 from exchange.models import MassPaymentBalance
-from exchange.microledger import (
+from microledger import (
     MassPaymentMicroLedger, DatabasePaymentConsensus
 )
-from exchange.entities import (
+from entities import (
     mass_payment, Account, MerchantAccount, StorageItem, Identity
 )
-from exchange.ratios import GarantexEngine
-from exchange.reposiroty import StorageRepository, AccountRepository, AtomicDelegator  # noqa
-from exchange.api import BaseExchangeController, AuthControllerMixin
-from exchange.reports import QugoRegistry
+from ratios import GarantexEngine
+from reposiroty import StorageRepository, AccountRepository, AtomicDelegator  # noqa
+from api import BaseExchangeController, AuthControllerMixin
+from reports import QugoRegistry
 
 
 class MassPaymentResource(BaseResource):

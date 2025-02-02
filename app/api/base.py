@@ -5,19 +5,19 @@ from typing import Type, Callable, Optional, Dict, List, Tuple, Union
 from django.conf import settings
 from django.http import HttpResponse, HttpRequest
 
-from api.lib import (
+from lib import (
     BaseResource, SingleResourceAsyncHttpTransport,
     ManyResourceAsyncHttpTransport, HttpRouter, BaseController,
     MethodMapping
 )
 
-from exchange.entities import (
+from entities import (
     Account, ExchangeConfig, AnonymousAccount, MerchantAccount,
     MerchantMeta, Identity
 )
-from exchange.context import Context, context as app_context
-from exchange.cache import Cache
-from exchange.reposiroty.config import ExchangeConfigRepository
+from context import Context, context as app_context
+from cache import Cache
+from reposiroty.config import ExchangeConfigRepository
 from .auth import BaseAuth
 
 

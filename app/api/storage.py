@@ -3,11 +3,11 @@ from typing import Any, List, Optional, Dict
 
 from pydantic import Field
 
-from api.lib import BaseResource
+from lib import BaseResource
 
-from exchange.entities import Account
-from exchange.api import BaseExchangeController, AuthControllerMixin
-from exchange.reposiroty import StorageRepository
+from entities import Account
+from api import BaseExchangeController, AuthControllerMixin
+from reposiroty import StorageRepository
 
 
 class StorageItemResource(BaseResource):

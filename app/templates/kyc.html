@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}
+    {% translate "KYC" %}
+{% endblock %}
+
+{% block import_scripts %}
+    {% include 'components/kyc.photo.html' %}
+{% endblock %}
+
+{% block content %}
+    <div class="text-center mt-5">
+        <kyc
+                :url="'/api/kyc'"
+                :model="kyc"
+        ></kyc>
+    </div>
+
+{% endblock %}

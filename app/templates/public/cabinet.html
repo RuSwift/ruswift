@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block logo %}
+    {{ public.title }} - {% translate 'Мой кабинет' %}
+{% endblock %}
+
+{% block title %}
+    Cabinet
+{% endblock %}
+
+{% block import_scripts %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/imask/7.6.1/imask.min.js"></script>
+    <script src="/static/js/public/components.js"></script>
+
+{% endblock %}
+
+{% block content %}
+    <div class="w-100" style="margin-top:2%;">
+        <account-cabinet>
+
+        </account-cabinet>
+    </div>
+{% endblock %}

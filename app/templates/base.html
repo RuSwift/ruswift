@@ -1,0 +1,203 @@
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>
+            {% block title %}Base{% endblock %}
+        </title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        <!-- Favicon-->
+        <link rel="icon" type="image/x-icon" href="/static/assets/favicon.ico" />
+        <!-- Core theme CSS (includes Bootstrap)-->
+        <link href="/static/css/styles.css" rel="stylesheet" />
+        <link href="/static/css/kyc.css" rel="stylesheet" />
+        <link href="/static/css/progress.css" rel="stylesheet" />
+        <link href="/static/css/modal.css" rel="stylesheet" />
+        <script
+          src="https://code.jquery.com/jquery-3.6.3.min.js"
+          integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU="
+          crossorigin="anonymous">
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+        <script src="https://unpkg.com/vue-form-json-schema@latest/dist/vue-form-json-schema.umd.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.js"></script>
+        {% include 'components/progress.steps.html' %}
+        <script type="text/x-template" id="modal-template">
+          <!--
+          Sample: https://codesandbox.io/p/sandbox/github/vuejs/v2.vuejs.org/tree/master/src/v2/examples/vue-20-modal-component?file=%2Findex.html&from-embed=
+          -->
+          <transition name="modal">
+            <div class="modal-mask">
+              <div class="modal-wrapper">
+                <slot name="container">
+                    <div class="modal-container">
+                      <div class="modal-header">
+                        <slot name="header">
+                          default header
+                        </slot>
+                      </div>
+                      <div class="modal-body">
+                        <slot name="body">
+                          default body
+                        </slot>
+                      </div>
+                      <div class="modal-footer">
+                        <slot name="footer">
+                          default footer
+                          <button class="modal-default-button" @click="$emit('close')">
+                            OK
+                          </button>
+                        </slot>
+                      </div>
+                    </div>
+                </slot>
+              </div>
+            </div>
+          </transition>
+        </script>
+        {% block styles %}{% endblock %}
+        {% block import_scripts %}{% endblock %}
+    </head>
+        <!-- Responsive navbar-->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <div class="container">
+                <a class="navbar-brand" href="">
+                    {% block logo %}
+                        RuSwift - {% translate 'Платежи по всему миру' %}
+                    {% endblock %}
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                        <li class="nav-item"><a class="nav-link active" aria-current="page" href="{{ urls.home }}">Home</a></li>
+                        {% if user and not user.is_anonymous %}
+                            {% if merchant %}
+                                <li class="nav-item"><a class="nav-link" href="{{ urls.admin }}">Admin Page</a></li>
+                            {% else %}
+                                {% if  urls.admin %}
+                                    <li class="nav-item"><a class="nav-link" href="{{ urls.admin }}">Control Panel</a></li>
+                                {% endif %}
+                            {% endif %}
+                        {% else %}
+                            {% if urls.login %}
+                                <li class="nav-item"><a class="nav-link" href="{{ urls.login }}">Login</a></li>
+                            {% endif %}
+                        {% endif %}
+                        <!--
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Dropdown</a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                <li><a class="dropdown-item" href="#">Action</a></li>
+                                <li><a class="dropdown-item" href="#">Another action</a></li>
+                                <li><hr class="dropdown-divider" /></li>
+                                <li><a class="dropdown-item" href="#">Something else here</a></li>
+                            </ul>
+                        </li>
+                        -->
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <!-- Page content-->
+        <div class="container" id="app">
+            {% block content %}
+
+            {% endblock %}
+        </div>
+
+        {{ auths|json_script:"auths-data" }}
+        {{ user|json_script:"user-data" }}
+
+        <script>
+
+            const auths = JSON.parse(document.getElementById('auths-data').textContent) || []
+
+            Vue.component("modal", {
+                template: "#modal-template"
+            });
+
+
+            const app = new Vue({
+              el: '#app',
+              delimiters: ['[[', ']]'],
+              data: {
+                  showModal: false,
+                  test_header: "Test Header",
+                  kyc: {
+                      take_screen_txt: '{% translate "Сделать снимок" %}',
+                      repeat_screen_txt: '{% translate "Переснять" %}',
+                      upload_manual_txt: '{% translate "Загрузить вручную" %}',
+                      rotate_screen_txt: '{% translate "Переключить камеру" %}',
+                      next_txt: '{% translate "Далее" %}',
+                      prev_txt: '{% translate "Назад" %}',
+                      stages: [
+                          {
+                              id: 'doc',
+                              index: 1,
+                              label: '{% translate "Паспорт" %}',
+                              description: '{% translate "Предъявите паспорт" %}',
+                              passed: false,
+                              webcam: true,
+                              manual: true,
+                              form: null
+                          },
+                          {
+                              id: 'selfie',
+                              index: 2,
+                              label: '{% translate "Селфи" %}',
+                              description: '{% translate "Сделайте Селфи" %}',
+                              passed: false,
+                              webcam: true,
+                              manual: true,
+                              form: null
+                          },
+                          {
+                              id: 'approve',
+                              index: 3,
+                              label: '{% translate "Подтверждение" %}',
+                              description: '{% translate "Подтвердите данные" %}',
+                              passed: false,
+                              webcam: false,
+                              manual: false,
+                              form: {
+                                  full_name: {
+                                      value: null,
+                                      placeholder: '{% translate "ФИО" %}',
+                                      comment: '{% translate "Ваши фамилия, имя, отчество" %}',
+                                      type: 'text'
+                                  },
+                                  telegram: {
+                                      value: null,
+                                      placeholder: '{% translate "telegram" %}',
+                                      comment: '{% translate "Ваш telegram-аккаунт" %}',
+                                      type: 'text'
+                                  }
+                              }
+                          }
+                      ]
+                  },
+                  auths: {
+                      selected: null, // auths.length > 0 ? auths[0].name : null,
+                      methods: auths,
+                      form_data: {}
+                  },
+                  translates: {
+                      kyc: {
+
+                      },
+                      common: {
+
+                      }
+                  }
+              }
+            })
+        </script>
+        <!-- Bootstrap core JS-->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Core theme JS-->
+        <script src="/static/js/scripts.js"></script>
+    </body>
+</html>

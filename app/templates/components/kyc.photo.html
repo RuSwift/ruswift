@@ -1,0 +1,406 @@
+<script>
+
+    Vue.component('kyc', {
+        delimiters: ['[[', ']]'],
+        props: {
+            url: String,
+            model: {
+                default(){
+                    return {
+                      header: 'Identity verification',
+                      take_screen_txt: 'Take Photo',
+                      stages: [
+                          {
+                              id: 'doc',
+                              index: 1,
+                              label: 'Document',
+                              passed: false,
+                              webcam: true,
+                              manual: true,
+                              form: null
+                          },
+                          {
+                              id: 'selfie',
+                              index: 2,
+                              label: 'Selfie',
+                              passed: false,
+                              webcam: true,
+                              manual: true,
+                              form: null
+                          },
+                          {
+                              id: 'approve',
+                              index: 3,
+                              label: 'Approving',
+                              passed: false,
+                              webcam: false,
+                              manual: false,
+                              form: {
+                                  first_name: '',
+                                  last_name: '',
+                                  phone: ''
+                              }
+                          }
+                      ]
+                    }
+                },
+            },
+        },
+        data() {
+            return {
+                width: null,
+                height: null,
+                camera_height: null,
+                streaming: false,
+                cur_stage_index: 0,
+                title: {
+                    msg: '',
+                    is_error: false
+                },
+                buttons: {
+                    rotate: false,
+                    screenshot: true,
+                    repeat: false,
+                    upload: false
+                },
+
+                // Texts
+                take_screen_txt: 'Take Screen',
+                repeat_screen_txt: 'Repeat',
+                upload_manual_txt: 'Upload Manually',
+                rotate_screen_txt: 'Rotate Camera',
+                next_txt: 'Next Step',
+                prev_txt: 'Return to Prev Step',
+
+                stages_buffers: [],
+
+                // Генерация SVG иконок https://www.svgviewer.dev/svg-to-data-uri
+                screen_svg: 'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCEtLSBMaWNlbnNlOiBQRC4gTWFkZSBieSBBbGVrc2V5IFBvcG92OiBodHRwczovL2RyaWJiYmxlLmNvbS9BbGVrc2V5UG9wb3YgLS0+CjxzdmcgZmlsbD0iI2ZmZmZmZiIgd2lkdGg9IjEwMHB4IiBoZWlnaHQ9IjEwMHB4IiB2aWV3Qm94PSIwIDAgMjQgMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPHBhdGggZmlsbC1ydWxlPSJldmVub2RkIiBkPSJNMywyMSBDMS44OTU0MzA1LDIxIDEsMjAuMTA0NTY5NSAxLDE5IEwxLDUgQzEsMy44OTU0MzA1IDEuODk1NDMwNSwzIDMsMyBMMjEsMyBDMjIuMTA0NTY5NSwzIDIzLDMuODk1NDMwNSAyMyw1IEwyMywxOSBDMjMsMjAuMTA0NTY5NSAyMi4xMDQ1Njk1LDIxIDIxLDIxIEwzLDIxIFogTTIxLDUgTDMsNSBMMywxOSBMMjEsMTkgTDIxLDUgWiBNOS4xODQzMTY0LDcuNzg3NjgzNzEgQzkuNjczMzM2MjEsNy4zMDU4NDMzMiAxMC4yODA0NjU4LDcgMTEsNyBMMTMsNyBDMTMuNzE5NTM0Miw3IDE0LjMyNjY2MzgsNy4zMDU4NDMzMiAxNC44MTU2ODM2LDcuNzg3NjgzNzEgQzE0Ljg4Nzk4NjcsNy44NTg5MjUzMiAxNC45NTQxMTA4LDcuOTMwMDU2NjcgMTUuMDE0MzAyNiw4IEwxNS42LDggQzE2Ljk0MTQ5MDYsOCAxOCw5LjEzNDExNzIxIDE4LDEwLjUgTDE4LDE0LjUgQzE4LDE1Ljg2NTg4MjggMTYuOTQxNDkwNiwxNyAxNS42LDE3IEw4LjQsMTcgQzcuMDU4NTA5MzksMTcgNiwxNS44NjU4ODI4IDYsMTQuNSBMNiwxMC41IEM2LDkuMTM0MTE3MjEgNy4wNTg1MDkzOSw4IDguNCw4IEw4Ljk4NTY5NzQyLDggQzkuMDQ1ODg5Miw3LjkzMDA1NjY3IDkuMTEyMDEzMjgsNy44NTg5MjUzMiA5LjE4NDMxNjQsNy43ODc2ODM3MSBaIE0xMSw5IEMxMC44NzA2MDkyLDkgMTAuNzMzMzI2Myw5LjA2OTE1NjY4IDEwLjU4ODAzMzYsOS4yMTIzMTYyOSBDMTAuNDgwNDA4Nyw5LjMxODM2MTA4IDEwLjQwNTk5Miw5LjQyNTk3NzQ1IDEwLjM4MzY0Niw5LjQ2ODE1NTY2IEwxMC4xMDE4NzQ5LDEwIEw4LjQsMTAgQzguMTk1MDkzMzEsMTAgOCwxMC4yMDkwMjg1IDgsMTAuNSBMOCwxNC41IEM4LDE0Ljc5MDk3MTUgOC4xOTUwOTMzMSwxNSA4LjQsMTUgTDE1LjYsMTUgQzE1LjgwNDkwNjcsMTUgMTYsMTQuNzkwOTcxNSAxNiwxNC41IEwxNiwxMC41IEMxNiwxMC4yMDkwMjg1IDE1LjgwNDkwNjcsMTAgMTUuNiwxMCBMMTMuODk4MTI1MSwxMCBMMTMuNjE2MzU0LDkuNDY4MTU1NjYgQzEzLjU5NDAwOCw5LjQyNTk3NzQ1IDEzLjUxOTU5MTMsOS4zMTgzNjEwOCAxMy40MTE5NjY0LDkuMjEyMzE2MjkgQzEzLjI2NjY3MzcsOS4wNjkxNTY2OCAxMy4xMjkzOTA4LDkgMTMsOSBMMTEsOSBaIE0xMiwxNCBDMTAuODk1NDMwNSwxNCAxMCwxMy4xMDQ1Njk1IDEwLDEyIEMxMCwxMC44OTU0MzA1IDEwLjg5NTQzMDUsMTAgMTIsMTAgQzEzLjEwNDU2OTUsMTAgMTQsMTAuODk1NDMwNSAxNCwxMiBDMTQsMTMuMTA0NTY5NSAxMy4xMDQ1Njk1LDE0IDEyLDE0IFoiLz4KPC9zdmc+',
+                repeat_svg: 'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCEtLSBMaWNlbnNlOiBNSVQuIE1hZGUgYnkgSWNvbnNheDogaHR0cHM6Ly9naXRodWIuY29tL2x1c2F4d2ViL2ljb25zYXggLS0+Cjxzdmcgd2lkdGg9IjEwMHB4IiBoZWlnaHQ9IjEwMHB4IiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik0xNC4wMDAyIDNMMTYuNDQwMiA1LjM0MDAzTDguNDkwMjMgNS4zMjAwMUM0LjkyMDIzIDUuMzIwMDEgMS45OTAyMyA4LjI1MDAzIDEuOTkwMjMgMTEuODRDMS45OTAyMyAxMy42MyAyLjcyMDIyIDE1LjI2IDMuOTAwMjIgMTYuNDQiIHN0cm9rZT0iI2ZmZmZmZiIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBkPSJNMTAuMDAwNSAyMS4wMDAxTDcuNTYwNTUgMTguNjZMMTUuNTEwNSAxOC42ODAxQzE5LjA4MDUgMTguNjgwMSAyMi4wMTA1IDE1Ljc1IDIyLjAxMDUgMTIuMTZDMjIuMDEwNSAxMC4zNyAyMS4yODA2IDguNzQwMDYgMjAuMTAwNiA3LjU2MDA2IiBzdHJva2U9IiNmZmZmZmYiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggb3BhY2l0eT0iMC40IiBkPSJNOSAxMkgxNSIgc3Ryb2tlPSIjZmZmZmZmIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+Cjwvc3ZnPg==',
+                upload_svg: 'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCEtLSBMaWNlbnNlOiBNSVQuIE1hZGUgYnkgdGVlbnlpY29uczogaHR0cHM6Ly9naXRodWIuY29tL3RlZW55aWNvbnMvdGVlbnlpY29ucyAtLT4KPHN2ZyB3aWR0aD0iMTAwcHgiIGhlaWdodD0iMTAwcHgiIHZpZXdCb3g9IjAgMCAxNSAxNSIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik03LjQ4NjE0IDAuODA2NzQ3TDExLjA4OTEgNC4xMzI1OUwxMC40MTA5IDQuODY3NEw4IDIuNjQxOTlWMTFIN1YyLjcwNzFMNC44NTM1NSA0Ljg1MzU1TDQuMTQ2NDUgNC4xNDY0NEw3LjQ4NjE0IDAuODA2NzQ3Wk0yIDEzVjYuOTk5OTlIMVYxNEgxNFY2Ljk5OTk5SDEzVjEzSDJaIiBmaWxsPSIjRkZGRkZGIi8+Cjwvc3ZnPg==',
+                rotate_svg: 'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCEtLSBMaWNlbnNlOiBNSVQuIE1hZGUgYnkgSWNvbnNheDogaHR0cHM6Ly9naXRodWIuY29tL2x1c2F4d2ViL2ljb25zYXggLS0+Cjxzdmcgd2lkdGg9IjEwMHB4IiBoZWlnaHQ9IjEwMHB4IiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik02LjcwMTE3IDkuMjU5NzdMMTIuMDAxMiAxMi4zMjk4TDE3LjI2MTIgOS4yNzk3NiIgc3Ryb2tlPSIjZmZmZmYiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggZD0iTTEyLjAwMiAxNy43Njk4VjEyLjMxOTgiIHN0cm9rZT0iI2ZmZmZmZiIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBkPSJNMTAuNzYwMyA2LjI4OTg2TDcuNTYwMjQgOC4wNjk4NkM2Ljg0MDI0IDguNDY5ODYgNi4yNDAyMyA5LjQ3OTg1IDYuMjQwMjMgMTAuMzA5OVYxMy42OTk5QzYuMjQwMjMgMTQuNTI5OSA2LjgzMDI0IDE1LjUzOTkgNy41NjAyNCAxNS45Mzk5TDEwLjc2MDMgMTcuNzE5OUMxMS40NDAzIDE4LjA5OTkgMTIuNTYwMiAxOC4wOTk5IDEzLjI1MDIgMTcuNzE5OUwxNi40NTAzIDE1LjkzOTlDMTcuMTcwMyAxNS41Mzk5IDE3Ljc3MDIgMTQuNTI5OSAxNy43NzAyIDEzLjY5OTlWMTAuMjk5OUMxNy43NzAyIDkuNDY5ODYgMTcuMTgwMyA4LjQ1OTg1IDE2LjQ1MDMgOC4wNTk4NUwxMy4yNTAyIDYuMjc5ODVDMTIuNTYwMiA1Ljg5OTg1IDExLjQ0MDMgNS44OTk4NiAxMC43NjAzIDYuMjg5ODZaIiBzdHJva2U9IiNmZmZmZmYiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggb3BhY2l0eT0iMC40IiBkPSJNMjIgMTVDMjIgMTguODcgMTguODcgMjIgMTUgMjJMMTYuMDUgMjAuMjUiIHN0cm9rZT0iI2ZmZmZmZiIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBvcGFjaXR5PSIwLjQiIGQ9Ik0yIDlDMiA1LjEzIDUuMTMgMiA5IDJMNy45NTAwMSAzLjc1IiBzdHJva2U9IiNmZmZmZmYiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPC9zdmc+',
+                next_svg: 'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCEtLSBMaWNlbnNlOiBNSVQuIE1hZGUgYnkgSWNvbnNheDogaHR0cHM6Ly9naXRodWIuY29tL2x1c2F4d2ViL2ljb25zYXggLS0+Cjxzdmcgd2lkdGg9IjEwMHB4IiBoZWlnaHQ9IjEwMHB4IiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik0zLjc1OTc3IDcuMjIwMDVWMTYuNzkwMUMzLjc1OTc3IDE4Ljc1MDEgNS44ODk3NSAxOS45OCA3LjU4OTc1IDE5TDExLjczOTcgMTYuNjFMMTUuODg5OCAxNC4yMUMxNy41ODk4IDEzLjIzIDE3LjU4OTggMTAuNzggMTUuODg5OCA5LjgwMDA0TDExLjczOTcgNy40MDAwNEw3LjU4OTc1IDUuMDEwMDZDNS44ODk3NSA0LjAzMDA2IDMuNzU5NzcgNS4yNTAwNSAzLjc1OTc3IDcuMjIwMDVaIiBzdHJva2U9IiNGRkZGRkYiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggb3BhY2l0eT0iMC40IiBkPSJNMjAuMjQwMiAxOC4xNzk4VjUuODE5ODIiIHN0cm9rZT0iI0VFRUVFRSIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4=',
+                prev_svg: 'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCEtLSBMaWNlbnNlOiBNSVQuIE1hZGUgYnkgSWNvbnNheDogaHR0cHM6Ly9naXRodWIuY29tL2x1c2F4d2ViL2ljb25zYXggLS0+Cjxzdmcgd2lkdGg9IjEwMHB4IiBoZWlnaHQ9IjEwMHB4IiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik0yMC4yNDA5IDcuMjIwMDVWMTYuNzkwMUMyMC4yNDA5IDE4Ljc1MDEgMTguMTExIDE5Ljk4IDE2LjQxMSAxOUwxMi4yNjEgMTYuNjFMOC4xMTA5NCAxNC4yMUM2LjQxMDk0IDEzLjIzIDYuNDEwOTQgMTAuNzggOC4xMTA5NCA5LjgwMDA0TDEyLjI2MSA3LjQwMDA0TDE2LjQxMSA1LjAxMDA2QzE4LjExMSA0LjAzMDA2IDIwLjI0MDkgNS4yNTAwNSAyMC4yNDA5IDcuMjIwMDVaIiBzdHJva2U9IiNGRkZGRkYiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggb3BhY2l0eT0iMC40IiBkPSJNMy43NTk3NyAxOC4xNzk4VjUuODE5ODIiIHN0cm9rZT0iI0VFRUVFRSIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4=',
+
+                showViewLiveResultButton() {
+                    if (window.self !== window.top) {
+                        // Ensure that if our document is in a frame, we get the user
+                        // to first open it in its own tab or window. Otherwise, it
+                        // won't be able to request permission for camera access.
+                        document.querySelector(".kyc-area").remove();
+                        const button = document.createElement("button");
+                        button.textContent = "View live result of the example code above";
+                        document.body.append(button);
+                        button.addEventListener("click", () => window.open(location.href));
+                        return true;
+                    }
+                    return false;
+                },
+                clear_photo() {
+                    const context = this.$refs.canvas.getContext("2d");
+                    context.fillStyle = "#AAA";
+                    context.fillRect(
+                        0, 0,
+                        this.$refs.canvas.width,
+                        this.$refs.canvas.height
+                    );
+
+                    const data = this.$refs.canvas.toDataURL("image/png");
+                    this.$refs.photo.setAttribute("src", data);
+                },
+                fill_photo(data){
+                    this.stages_buffers[this.cur_stage_index].photo = data;
+                    this.cur_stage.passed = true;
+                },
+                take_picture() {
+                    const context = this.$refs.canvas.getContext("2d");
+                    if (this.width && this.height) {
+                        this.$refs.canvas.width = this.width;
+                        this.$refs.canvas.height = this.height;
+                        context.drawImage(this.$refs.video, 0, 0, this.width, this.height);
+
+                        const data = this.$refs.canvas.toDataURL("image/png");
+                        this.print_picture(data);
+                        this.fill_photo(data);
+                    } else {
+                        this.clear_photo();
+                    }
+                },
+                move_to_stage(index){
+                    if ( 0 <= index < this.model.stages.length) {
+                        let stage = this.model.stages[index];
+                        this.cur_stage_index = index;
+                        this.title.msg = stage.description;
+                        this.title.is_error = false;
+
+                        let desc = this.stages_buffers[index];
+                        if (desc.photo) {
+                            this.print_picture(desc.photo);
+                            this.toggle_recording(false);
+                            if (stage.webcam) {
+                                this.buttons.repeat = true;
+                                this.buttons.screenshot = false;
+                            }
+                        }
+                        else {
+                            if (stage.webcam) {
+                                this.buttons.repeat = false;
+                                this.buttons.screenshot = true;
+                            }
+                        }
+                        if (stage.manual) {
+                            this.buttons.upload = true;
+                        }
+                    }
+                },
+                move_to_next_stage(){
+                    if (this.can_next) {
+                        this.move_to_stage(this.cur_stage_index+1);
+                        if (this.cur_stage.webcam || this.cur_stage.manual) {
+                            if (!this.stages_buffers[this.cur_stage_index].photo) {
+                                this.toggle_recording(true);
+                            }
+                        }
+                        else {
+                            this.buttons.screenshot = false;
+                            this.buttons.repeat = false;
+                            this.buttons.upload = false;
+                            this.$refs.video.style.display = 'none';
+                            this.$refs.photo.style.display = 'none';
+                            $(this.$refs.camera).height(this.camera_height);
+                        }
+                    }
+                },
+                move_to_prev_stage(){
+                    if (!this.has_errors) {
+                        if (this.cur_stage_index > 0) {
+                            this.move_to_stage(this.cur_stage_index-1)
+                        }
+                    }
+                },
+                move_to_first_stage(){
+                    this.move_to_stage(0);
+                },
+                click_screenshot(){
+                    this.take_picture();
+                    this.toggle_recording(false);
+                    if (this.cur_stage.manual) {
+                        this.buttons.upload = false;
+                    }
+                },
+                click_repeat(){
+                    if (this.cur_stage.manual) {
+                        this.buttons.upload = true;
+                    }
+                    this.toggle_recording(true);
+                },
+                print_picture(data){
+                    this.$refs.photo.style.display = 'inline-block';
+                    $(this.$refs.photo).height(this.height);
+                    $(this.$refs.photo).width(this.width);
+                    this.$refs.photo.setAttribute("src", data);
+                },
+                upload_file(){
+                    let self = this;
+                    let files = $(this.$refs.upload_file);
+                    files.trigger('click');
+                },
+                toggle_recording(on) {
+                    if (on === this.streaming) {
+                        return;
+                    }
+                    if (on) {
+                        this.buttons.screenshot = true;
+                        this.buttons.repeat = false;
+                        this.$refs.video.style.display = 'inline-block';
+                        this.$refs.photo.style.display = 'none';
+                        let self = this;
+                        navigator.mediaDevices
+                            .getUserMedia({video: true, audio: false})
+                            .then((stream) => {
+                                this.$refs.video.srcObject = stream;
+                                this.$refs.video.play();
+                                this.$refs.start_button.style.display = '';
+                            })
+                            .catch((err) => {
+                                self.title.msg = err.message;
+                                self.title.is_error = true;
+                                console.error(`An error occurred: ${err}`);
+                            });
+                        this.$refs.video.addEventListener(
+                            "canplay",
+                            (ev) => {
+                                if (!this.streaming) {
+                                    this.height = this.$refs.video.videoHeight;// / (video.videoWidth / this.width);
+                                    this.width = this.$refs.video.videoWidth;
+                                    // Firefox currently has a bug where the height can't be read from
+                                    // the video, so we will make assumptions if self happens.
+
+                                    if (isNaN(this.height)) {
+                                        this.height = this.width / (4 / 3);
+                                    }
+
+                                    this.$refs.video.setAttribute("width", this.width);
+                                    this.$refs.video.setAttribute("height", this.height);
+                                    this.$refs.canvas.setAttribute("width", this.width);
+                                    this.$refs.canvas.setAttribute("height", this.height);
+                                    this.camera_height = $(this.$refs.camera).height();
+                                    this.streaming = true;
+                                }
+                            },
+                            false,
+                        );
+                    }
+                    else {
+                        this.buttons.screenshot = false;
+                        this.buttons.repeat = true;
+                        this.$refs.video.style.display = 'none';
+                        this.$refs.photo.style.display = 'inline-block';
+                        const stream = this.$refs.video.srcObject;
+                        const tracks = stream.getTracks();
+                        tracks.forEach((track) => {
+                            track.stop();
+                        });
+                        this.streaming = false;
+                    }
+                }
+            }
+        },
+        computed: {
+            cur_stage() {
+                return this.model.stages[this.cur_stage_index];
+            },
+            has_errors(){
+                return this.title.is_error;
+            },
+            can_next(){
+                return !this.has_errors && (this.cur_stage_index < this.model.stages.length-1) && this.cur_stage.passed;
+            },
+            cur_form(){
+                let raw = this.cur_stage.form;
+                if (raw) {
+                    let form = {}
+                    for (let attr in raw) {
+                        let d = raw[attr];
+                        form[attr] = {
+                            id: attr,
+                            value: 'value' in d ? d.value : null,
+                            placeholder: 'placeholder' in d ? d.placeholder : null,
+                            comment: 'placeholder' in d ? d.comment : null,
+                            type: 'type' in d ? d.type: 'text',
+                        }
+                    }
+                    return form;
+                }
+                else {
+                    return null;
+                }
+            }
+        },
+        watch: {
+
+        },
+        mounted(){
+            if (this.model.stages) {
+                for (let i=0; i<this.model.stages.length; i++) {
+                    let d = {
+                        photo: null,
+                        id: this.model.stages[i].id
+                    };
+                    this.stages_buffers.push(d);
+                    this.model.stages[i].passed = false;
+                }
+                this.move_to_stage(0);
+            }
+            let self = this;
+            function startup() {
+                if (self.showViewLiveResultButton()) {
+                    return;
+                }
+                /*
+                self.$refs.start_button.addEventListener(
+                  "click",
+                  (ev) => {
+                    self.take_picture();
+                    ev.preventDefault();
+                    self.buttons.screenshot = false;
+                    self.buttons.repeat = true;
+                    self.$refs.video.style.display = 'none';
+                    self.$refs.photo.style.display = 'inline-block';
+                  },
+                  false,
+                );
+                 */
+                let files = $(self.$refs.upload_file);
+                files.change(function(){
+                    files.each(function (e) {
+                        if (this.files && this.files[0]) {
+                            let reader = new FileReader();
+                            reader.onload = function (e) {
+                                self.print_picture(e.target.result);
+                                self.fill_photo(e.target.result);
+                                self.toggle_recording(false);
+                                console.log(e.target.result);
+                            }
+                            reader.readAsDataURL(this.files[0]);
+                            console.log(this.files[0]);
+                        }
+                    });
+                });
+                self.clear_photo();
+                self.$refs.photo.style.display = 'none';
+            }
+            window.addEventListener("load", startup, false);
+        },
+        template:   `
+            <div class="kyc-area d-block w-100">
+              <progress-steps :model="model.stages"></progress-steps>
+              <div class="camera" >
+                <h3 :class="[title.is_error ? 'text-danger' : 'text-success', '']" >[[title.msg]]</h3>
+                <div class="row" ref="camera">
+                    <video id="video" ref="video">Video stream not available.</video>
+                    <img id="photo" ref="photo" alt="The screen capture will appear in this box."/>
+                    <div v-if="cur_form != null" class="form-panel">
+                        <div class="form-group">
+                            <div v-for="attr in cur_form" style="margin-bottom: 10px;">
+                                <input v-model="attr.value" v-bind:type="attr.type" class="form-control" v-bind:id="attr.id" v-bind:placeholder="attr.placeholder">
+                                <small v-if="attr.comment" class="form-text text-muted">[[ attr.comment ]]</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" style="margin-top: 5px;">
+                    <div class="col"></div>
+                    <div class="btn-group col" >
+                        <button @click.prevent="move_to_prev_stage($event)" type="button" ref="prev_button" v-if="cur_stage_index > 0 && !this.has_errors" v-bind:title="model.prev_txt">
+                           <img class="bi" v-bind:src="prev_svg" />
+                        </button>
+                        <button type="button" ref="rotate_button" v-if="buttons.rotate" v-bind:title="model.rotate_screen_txt">
+                            <img class="bi" v-bind:src="rotate_svg" />
+                        </button>
+                        <button @click.prevent="click_screenshot($event)" type="button" ref="start_button" v-if="buttons.screenshot" v-bind:title="model.take_screen_txt">
+                            <img class="bi" v-bind:src="screen_svg" />
+                        </button>
+                        <button @click.prevent="click_repeat($event)" type="button" ref="repeat_button" v-if="buttons.repeat" v-bind:title="model.repeat_screen_txt">
+                            <img class="bi" v-bind:src="repeat_svg" />
+                        </button>
+                        <button @click.prevent="upload_file($event)" type="button" ref="upload_button" v-if="buttons.upload" v-bind:title="model.upload_manual_txt">
+                            <img class="bi" v-bind:src="upload_svg" />
+                        </button>
+                        <button @click.prevent="move_to_next_stage($event)" type="button" ref="next_button" v-if="can_next" v-bind:title="model.next_txt">
+                            <img class="bi" v-bind:src="next_svg" />
+                        </button>
+                    </div>
+                    <div class="col"></div>
+                </div>
+              </div>
+              <canvas id="canvas" ref="canvas"> </canvas>
+              <div>
+                  <button @click="toggle_recording(true)">Start</button>
+              </div>
+              <input type="file" ref="upload_file" style="display: none;">
+            </div>
+        `
+    })
+
+</script>

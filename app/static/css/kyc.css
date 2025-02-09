@@ -1,0 +1,71 @@
+.kyc-area {
+  font-size: 16px;
+  font-family: "Lucida Grande", "Arial", sans-serif;
+  max-height: 100%;
+}
+
+.kyc-area #video {
+  width: 100%;
+}
+
+.kyc-area #photo {
+  margin: auto;
+}
+
+.kyc-area #canvas {
+  display: none;
+}
+
+.kyc-area .camera {
+  width: 70%;
+  display: inline-block;
+  background: #0b0e11;
+  padding: 10px;
+}
+
+.kyc-area button {
+  display: block;
+  position: relative;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 3px;
+  bottom: 0px;
+  background-color: rgb(0 150 0 / 50%);
+  border-radius: 5px;
+  border: 1px solid rgb(255 255 255 / 70%);
+  box-shadow: 0px 0px 1px 2px rgb(0 0 0 / 20%);
+  font-size: 14px;
+  font-family: "Lucida Grande", "Arial", sans-serif;
+  color: rgb(255 255 255 / 100%);
+}
+
+.kyc-area button:hover {
+  background-color: rgb(0 150 0 / 100%);
+}
+
+
+.kyc-area img.bi {
+  width: 30px;
+  height:25px;
+}
+
+.kyc-area .splash {
+  width: 100%;
+
+}
+
+.kyc-area .stage-header {
+  width: 70%;
+  margin: auto;
+}
+
+
+.kyc-area .form-panel {
+  padding: 10px;
+}
+
+.kyc-area .form-panel .form-group {
+  background-color: #ffffff;
+  padding: 10px;
+  border-radius: 5px;
+}

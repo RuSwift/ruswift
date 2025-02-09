@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block logo %}
+    {{ public.title }} - {% translate 'Подтверждение личноcти' %}
+{% endblock %}
+
+{% block title %}
+    KYC
+{% endblock %}
+
+{% block import_scripts %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/imask/7.6.1/imask.min.js"></script>
+    <script src="/static/js/public/components.js"></script>
+    <script>
+        $(()=>{
+            $('#kyc').height(3*window.innerHeight/4);
+        })
+    </script>
+{% endblock %}
+
+{% block content %}
+    <div class="text-center mt-5">
+        <h3 class="text-secondary">
+            {% if account %}<b>{% firstof account.full_name account.uid %}</b>,{% endif %}
+             пройдите верификацию личности
+        </h3>
+        <div id="kyc" class="alert alert-primary">
+            <mts-kyc
+                :success_redirect_url="null"
+                :identity_url="'{{ identity_url }}'"
+                :identity_id="'{{ identity_id }}'"
+            ></mts-kyc>
+
+        </div>
+
+    </div>
+
+{% endblock %}

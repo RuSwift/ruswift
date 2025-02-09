@@ -1,0 +1,334 @@
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        <title>Control Panel</title>
+        {% include 'components/admin.headers.html' %}
+        <script src="/static/js/admin/vue.control-panel.pages.js"></script>
+    </head>
+    <body class="sb-nav-fixed">
+        <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
+            <!-- Navbar Brand-->
+            <a class="navbar-brand ps-3" href="">{{ logo }}</a>
+            <!-- Sidebar Toggle-->
+            <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i class="fas fa-bars"></i></button>
+            <!-- Navbar Search-->
+
+            <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
+                <!--
+                <div class="input-group">
+                    <input class="form-control" type="text" placeholder="Search for..." aria-label="Search for..." aria-describedby="btnNavbarSearch" />
+                    <button class="btn btn-primary" id="btnNavbarSearch" type="button"><i class="fas fa-search"></i></button>
+                </div>
+                -->
+            </form>
+
+            <!-- Navbar-->
+            <ul class="navbar-nav ms-auto ms-md-0 me-3 me-lg-4">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-user fa-fw"></i></a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                        <li><a class="dropdown-item" href="{{ urls.cabinet }}">{% translate 'Аккаунт' %}</a></li>
+                        <!--
+                        <li><hr class="dropdown-divider" /></li>
+                        -->
+                        <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+        <div id="layoutSidenav">
+            <div id="layoutSidenav_nav">
+                <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
+                    <div class="sb-sidenav-menu">
+                        <div class="nav">
+                            <div class="row" v-for="menu in side_menu" style="margin: initial;">
+                                <div class="sb-sidenav-menu-heading">[[ menu.header ]]</div>
+                                <div v-for="item in menu.items">
+                                    <a class="nav-link collapsed"
+                                       v-bind:class="{'active': selected_menu === item.id}"
+                                       @click.prevent="selectMenu(item.id)"
+                                       v-bind:href="item.href"
+                                       data-bs-toggle="collapse"
+                                       v-bind:data-bs-target="'#' + item.id"
+                                       aria-expanded="false"
+                                       aria-controls="collapseLayouts"
+                                    >
+                                        <div class="sb-nav-link-icon"><i v-bind:class="item.icon_class"></i></div>
+                                        [[ item.label ]]
+                                        <div v-if="item.sub.length > 0" class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                                    </a>
+                                    <div class="collapse" v-bind:id="item.id" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
+                                        <nav class="sb-sidenav-menu-nested nav">
+                                            <a v-for="sub in item.sub"
+                                               @click.prevent="selectMenu(sub.id)"
+                                               class="nav-link"
+                                               v-bind:class="{'active': selected_menu === sub.id}"
+                                               v-bind:href="sub.href"
+                                            >[[ sub.label ]]</a>
+                                        </nav>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="sb-sidenav-footer">
+                        <div class="small">Produced by:</div>
+                        <b>Payolin</b>
+                    </div>
+                </nav>
+            </div>
+            <div id="layoutSidenav_content">
+                <main id="main">
+                    <div class="container-fluid px-4">
+                        <ol class="breadcrumb m-4">
+                            <h5 class="breadcrumb-item text-primary" v-for="b in breadcrumb">
+                                [[ b ]]
+                            </h5>
+                        </ol>
+                        <div class="div mb-4">
+
+                            <!--
+                            <rates-external
+                                    :title="labels.market_rates"
+                            >
+                            </rates-external>
+                            -->
+                            <!--
+                            <invoice-form
+                                    :header="labels.inv_schema_header"
+                                    :fld_placeholder="labels.inv_schema_fld_placeholder"
+                            >
+                            </invoice-form>
+                            -->
+                            <!--
+                            <mass-payments></mass-payments>
+                            -->
+                            <component
+                                    :is="current_page"
+                                    :merchant="current_merchant"
+                            ></component>
+                        </div>
+                    </div>
+                </main>
+                <footer class="py-4 bg-light mt-auto">
+                    <div class="container-fluid px-4">
+                        <div class="d-flex align-items-center justify-content-between small">
+                            <div class="text-muted">Copyright &copy; Payolin 2024</div>
+                            <!--
+                            <div>
+                                <a href="#">Privacy Policy</a>
+                                &middot;
+                                <a href="#">Terms &amp; Conditions</a>
+                            </div>
+                            -->
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </div>
+        <script>
+            const app = new Vue({
+                el: '#layoutSidenav',
+                delimiters: ['[[', ']]'],
+                data: {
+                    selected_menu: 'orders',
+                    current_page:  'Orders',
+                    current_merchant: null,
+                    side_menu: [
+                        {
+                            header: "{% translate 'Инструменты' %}",
+                            items: [
+                                {
+                                    id: 'orders',
+                                    href: '',
+                                    icon_class: 'fas fa-tachometer-alt',
+                                    label: "{% translate 'Текущие заявки' %}",
+                                    sub: [],
+                                    page: 'Orders'
+                                },
+                                {
+                                    id: 'mass-payments',
+                                    href: '',
+                                    icon_class: 'fa-solid fa-money-bill',
+                                    label: "{% translate 'Выплаты' %}",
+                                    page: null,
+                                    sub: [
+                                        {% for m in merchants_with_mass_payments %}
+                                            {
+                                                id: '{{ m.meta.identity.did.root }}',
+                                                href: '',
+                                                label: "{{ m.meta.title }}",
+                                                page: 'ControlPanelMassPayments',
+                                                merchant: '{{ m.meta.identity.did.root }}'
+                                            },
+                                        {% endfor %}
+                                    ],
+                                }
+                            ]
+                        },
+                        {
+                            header: "{% translate 'Услуги' %}",
+                            items: [
+                                {
+                                    id: 'clients',
+                                    href: '',
+                                    icon_class: 'fa-regular fa-user',
+                                    label: "{% translate 'Контрагенты' %}",
+                                    page: null,
+                                    sub: [
+                                        {
+                                            id: 'db',
+                                            href: '',
+                                            label: "{% translate 'Клиентская база' %}",
+                                            page: 'ClientsDb'
+                                        },
+                                        {
+                                            id: 'amocrm',
+                                            href: '',
+                                            label: "{% translate 'Amo CRM' %}",
+                                            page: 'ClientsCRM'
+                                        }
+                                    ]
+                                },
+                                {
+                                    id: 'directions',
+                                    href: '',
+                                    icon_class: 'fas fa-columns',
+                                    label: "{% translate 'Направления' %}",
+                                    page: null,
+                                    sub: [
+                                        {
+                                            id: 'forms',
+                                            href: '',
+                                            label: "{% translate 'Формы счетов' %}",
+                                            page: 'Forms'
+                                        },
+                                        {
+                                            id: 'currencies',
+                                            href: '',
+                                            label: "{% translate 'Валюты' %}",
+                                            page: 'AdminCurrencies'
+                                        },
+                                        {
+                                            id: 'rates',
+                                            href: '',
+                                            label: "{% translate 'Курсы' %}",
+                                            page: 'AdminDirections'
+                                        },
+                                        {
+                                            id: 'markets',
+                                            href: '',
+                                            label: "{% translate 'Рынки' %}",
+                                            page: 'Markets'
+                                        }
+                                    ]
+                                },
+                                {
+                                    id: 'deals',
+                                    href: '',
+                                    icon_class: 'fas fa-book-open',
+                                    label: "{% translate 'Сделки' %}",
+                                    page: null,
+                                    sub: [
+                                        {
+                                            id: 'history',
+                                            href: '',
+                                            label: "{% translate 'История' %}",
+                                            page: 'Any'
+                                        },
+                                        {
+                                            id: 'reports',
+                                            href: '',
+                                            label: "{% translate 'Отчеты' %}",
+                                            page: 'Any'
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            header: "{% translate 'Аккаунт' %}",
+                            items: [
+                                {
+                                    id: 'portfolio',
+                                    href: '',
+                                    icon_class: 'fa-regular fa-address-card',
+                                    label: "{% translate 'Профиль' %}",
+                                    sub: [],
+                                    page: 'Portfolio'
+                                }
+                            ]
+                        },
+                    ],
+                    labels: {
+                        market_rates: "{% translate 'Рыночные котировки' %}",
+                        inv_schema_header: "{% translate 'ID шаблона' %}",
+                        inv_schema_fld_placeholder: "{% translate 'Введите название поля' %}",
+                    }
+                },
+                computed: {
+                    breadcrumb(){
+                        let stack = [];
+                        for (let i=0; i<this.side_menu.length; i++) {
+                            let group = this.side_menu[i];
+                            for (let j=0; j<group.items.length; j++) {
+                                let item = group.items[j];
+                                stack.push(item.label);
+                                if (this.selected_menu === item.id) {
+                                    return stack;
+                                }
+                                for (let n=0; n<item.sub.length; n++) {
+                                    let sub = item.sub[n];
+                                    stack.push(sub.label);
+                                    if (this.selected_menu === sub.id) {
+                                        return stack;
+                                    }
+                                    stack.pop()
+                                }
+                                stack.pop();
+                            }
+                        }
+                        return stack;
+                    }
+                },
+                methods: {
+                    selectMenu(id){
+                        const menu = this.getMenu(id);
+                        if (menu) {
+                            if (menu.page) {
+                                this.selected_menu = id;
+                                this.current_page = menu.page;
+                                this.current_merchant = menu.merchant
+                            }
+                        }
+                    },
+                    getMenu(id){
+                        for (let i=0; i<this.side_menu.length; i++) {
+                            let group = this.side_menu[i];
+                            for (let j=0; j<group.items.length; j++) {
+                                let item = group.items[j];
+                                if (id === item.id) {
+                                    return item;
+                                }
+                                for (let n=0; n<item.sub.length; n++) {
+                                    let sub = item.sub[n];
+                                    if (id === sub.id) {
+                                        return sub;
+                                    }
+                                }
+                            }
+                        }
+                        return null;
+                    }
+                }
+            })
+        </script>
+        {% include 'components/admin.footers.html' %}
+    </body>
+</html>

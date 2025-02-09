@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block logo %}
+    {{ public.title }} - {% translate 'Регистрация аккаунта' %}
+{% endblock %}
+
+{% block title %}
+    Registration
+{% endblock %}
+
+{% block import_scripts %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/imask/7.6.1/imask.min.js"></script>
+    <script src="/static/js/public/components.js"></script>
+    <script>
+        $(()=>{
+            $('#register').height(3*window.innerHeight/4);
+        })
+    </script>
+{% endblock %}
+
+{% block content %}
+    <div class="text-center mt-5">
+        <h3 class="text-secondary">
+             Регистрация аккаунта
+        </h3>
+        <div id="register">
+            <account-registration-form
+                :success_redirect_url="null"
+                :identity_url="'{{ identity_url }}'"
+                :identity_id="'{{ identity_id }}'"
+                {% if user and not user.is_anonymous %}
+                :user="'{{ user.first_name }}'"
+                {% endif %}
+            ></account-registration-form>
+        </div>
+
+    </div>
+
+{% endblock %}

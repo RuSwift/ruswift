@@ -1,0 +1,46 @@
+
+<script>
+
+    Vue.component('progress-steps', {
+        delimiters: ['[[', ']]'],
+        props: {
+            stages: Array,
+            model: {
+                default(){
+                    return [
+                          {
+                              index: 1,
+                              label: 'Step-1',
+                              passed: false
+                          },
+                          {
+                              index: 2,
+                              label: 'Step-2',
+                              passed: false
+                          },
+                          {
+                              index: 3,
+                              label: 'Step-3',
+                              passed: false
+                          }
+                      ]
+                },
+            },
+        },
+        data() {
+            return {
+
+            }
+        },
+        template:   `
+        <div class="stepper-wrapper">
+            <div class="stepper-item" :class="{completed: stage.passed}" v-for="stage in model">
+                <div class="step-counter" :class="{'spinner-border': stage.processing}">[[stage.index]]</div>
+                <div class="step-name">[[stage.label]]</div>
+            </div>
+        </div>
+        `
+    })
+
+</script>
+

@@ -9,11 +9,14 @@
             "type": "debugpy",
             "request": "launch",
             "args": [
-                "runserver", "8000"
+                "runserver", "0.0.0.0:8000"
             ],
             "django": true,
             "autoStartBrowser": false,
-            "program": "${workspaceFolder}/app/manage.py"
+            "program": "${workspaceFolder}/app/manage.py",
+            "env": {
+                "SETTINGS": "/workspaces/ruswift/.devcontainer/cfg.yml"
+            }
         },
         {
             "name": "Debug script",

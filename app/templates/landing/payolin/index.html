@@ -1,0 +1,1893 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Payolin</title>
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+
+  <!-- Favicons -->
+  <link href="{{ logo.icon }}" rel="icon">
+  <link href="{{ logo.icon }}" rel="apple-touch-icon">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Jost:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="/static/landing/payolin/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/static/landing/payolin/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="/static/landing/payolin/assets/vendor/aos/aos.css" rel="stylesheet">
+  <link href="/static/landing/payolin/assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
+  <link href="/static/landing/payolin/assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+
+  <!-- Main CSS File -->
+  <link href="/static/landing/payolin/assets/css/main.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script
+      src="https://code.jquery.com/jquery-3.6.3.min.js"
+      integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU="
+      crossorigin="anonymous">
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.js"></script>
+
+  <!-- =======================================================
+  * Template Name: Arsha
+  * Template URL: https://bootstrapmade.com/arsha-free-bootstrap-html-template-corporate/
+  * Updated: Aug 07 2024 with Bootstrap v5.3.3
+  * Author: BootstrapMade.com
+  * License: https://bootstrapmade.com/license/
+  ======================================================== -->
+  <style>
+      .modal-mask {
+          position: fixed;
+          z-index: 9998;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(0, 0, 0, 0.5);
+          display: table;
+          transition: opacity 0.3s ease;
+        }
+
+        .modal-wrapper {
+          display: table-cell;
+          vertical-align: middle;
+        }
+
+        .modal-container {
+          width: 80%;
+          margin: 0px auto;
+          padding: 20px 30px;
+          background-color: #fff;
+          border-radius: 2px;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
+          transition: all 0.3s ease;
+          font-family: Helvetica, Arial, sans-serif;
+        }
+
+        .modal-header h3 {
+          margin-top: 0;
+          color: #42b983;
+        }
+
+        .modal-body {
+          margin: 20px 0;
+        }
+
+        .modal-default-button {
+          float: right;
+        }
+
+        /*
+         * The following styles are auto-applied to elements with
+         * transition="modal" when their visibility is toggled
+         * by Vue.js.
+         *
+         * You can easily play with the modal transition by editing
+         * these styles.
+         */
+
+        .modal-enter {
+          opacity: 0;
+        }
+
+        .modal-leave-active {
+          opacity: 0;
+        }
+
+        .modal-enter .modal-container,
+        .modal-leave-active .modal-container {
+          -webkit-transform: scale(1.1);
+          transform: scale(1.1);
+        }
+
+  </style>
+    {% if ym %}
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript" >
+       (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+       m[i].l=1*new Date();
+       for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+       k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+       (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+       ym(98982429, "init", {
+            clickmap:true,
+            trackLinks:true,
+            accurateTrackBounce:true,
+            webvisor:true
+       });
+    </script>
+    <noscript><div><img src="https://mc.yandex.ru/watch/98982429" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+    <!-- /Yandex.Metrika counter -->
+    {% endif %}
+  <script type="text/x-template" id="modal-template">
+      <!--
+      Sample: https://codesandbox.io/p/sandbox/github/vuejs/v2.vuejs.org/tree/master/src/v2/examples/vue-20-modal-component?file=%2Findex.html&from-embed=
+      -->
+      <transition name="modal">
+        <div class="modal-mask">
+          <div class="modal-wrapper">
+            <slot name="container">
+                <div class="modal-container">
+                  <div class="modal-header">
+                    <slot name="header">
+                      default header
+                    </slot>
+                  </div>
+                  <div class="modal-body">
+                    <slot name="body">
+                      default body
+                    </slot>
+                  </div>
+                  <div class="modal-footer">
+                    <slot name="footer">
+                      default footer
+                      <button class="modal-default-button" @click="$emit('close')">
+                        OK
+                      </button>
+                    </slot>
+                  </div>
+                </div>
+            </slot>
+          </div>
+        </div>
+      </transition>
+    </script>
+
+  <script type="text/x-template" id="calculator-template">
+       <div class="w-100 p-0">
+           <div class="w-100 p-3" v-if="payment_method == 'bank' || payment_method == 'alter'">
+               <!-- Currencies -->
+               <div class="row gy-4">
+                   <div class="col-md-auto" v-if="payment_method == 'bank'">
+                       <span class="text-secondary">Валюта</span>
+                       <div class="btn-group dropleft">
+                           <button v-if="current_cur" @click.prevent="show_currencies_dropdown = !show_currencies_dropdown" type="button" class="btn btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            [[ current_cur.label ]]
+                          </button>
+                          <div class="dropdown-menu" style="margin-left: 103%;" v-bind:style="{display: show_currencies_dropdown ? 'block': 'none'}">
+                            <a @click.prevent="select_currency(cur)" v-for="cur in currencies" class="dropdown-item" href="">[[ cur.code ]]</a>
+                          </div>
+                       </div>
+                   </div>
+                   <div class="col-md-auto" v-if="payment_method == 'alter'">
+                       <span class="text-secondary">Метод</span>
+                       <div class="btn-group dropleft">
+                           <button v-if="current_alter_method" @click.prevent="show_alter_dropdown = !show_alter_dropdown" type="button" class="btn btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            [[ current_alter_method.label ]]
+                          </button>
+                          <div class="dropdown-menu" style="margin-left: 103%;" v-bind:style="{display: show_alter_dropdown ? 'block': 'none'}">
+                            <a @click.prevent="select_alternative_method(meth)" v-for="meth in alternatives" class="dropdown-item" href="">[[ meth.label ]]</a>
+                          </div>
+                       </div>
+                   </div>
+                   <div class="col-md-3">
+                      <input v-model="amount" placeholder="введите сумму..." type="number" name="name" class="form-control">
+                   </div>
+                   <span class="text-secondary col-auto p-2">=</span>
+                   <div class="col-md-auto p-2">
+                       <h5 class="col-auto text-primary" v-if="rates" >
+                           [[ rub_amount.toLocaleString() ]] руб
+                           <i class="bi bi-info-circle" title="конечная цена может отличаться свяжитесь с менеджером для рассчетов"></i>
+                       </h5>
+                       <span style="font-size: 75%;" class="col-auto text-secondary">тело платежа</span>
+                   </div>
+                   <span class="text-secondary col-auto p-2">+</span>
+                   <div class="col-md-auto p-2">
+                       <h5 class="col-auto text-primary" v-if="rates" >
+                           <span class="text-secondary">[[ rates.comission.default ]]%</span>
+                           [[ rub_comission.toLocaleString() ]] руб
+                       </h5>
+                       <span style="font-size: 75%;" class="col-auto text-secondary">наша комиссия</span>
+                   </div>
+               </div>
+               <!-- Formulas -->
+               <div class="row gy-4" style="margin-top: 5px;">
+                   <span v-if="current_cur" class="text-secondary col-auto p-2"> Курсы [[ current_cur.code ]]-RUB </span>
+                   <div class="col-auto text-center p-2" v-if="investing_ratio">
+                       <h5 class="col-auto text-primary" v-if="rates">[[ investing_ratio.toFixed(2) ]]</h5>
+                       <a v-bind:href="investing_link" target="_blank" style="font-size: 75%;" class="col-auto text-primary text-decoration-underline">Investing</a>
+                   </div>
+                   <div class="col-auto text-center p-2" v-if="banks_ratio">
+                       <h5 class="col-auto text-primary" v-if="rates">[[ banks_ratio.toFixed(2) ]]</h5>
+                       <a v-bind:href="banks_link" target="_blank" style="font-size: 75%;" class="col-auto text-primary text-decoration-underline">Банки РФ</a>
+                   </div>
+                   <div class="col-auto text-center p-2" v-if="bestchange_ratio">
+                       <h5 class="col-auto text-primary" v-if="rates">[[ bestchange_ratio.toFixed(2) ]]</h5>
+                       <a v-bind:href="bestchange_link" target="_blank" style="font-size: 75%;" class="col-auto text-primary text-decoration-underline">BestChange</a>
+                   </div>
+                   <div @click.prevent="toggle_show_algo" style="cursor:pointer;" class="col-auto text-center border border-primary border-opacity-50 p-2 rounded bg bg-primary" title="Как мы считаем курсы">
+                       <h5 class="col-auto text-white" v-if="rates">
+                           [[ (final_cur_rub).toFixed(2) ]]
+                           <i v-if="show_cur_algorythm" class="bi bi-eye-fill text-white"></i>
+                           <i v-if="!show_cur_algorythm" class="bi bi-eye-slash text-white" ></i>
+                       </h5>
+                       <span style="font-size: 75%;" class="col-auto text-white">наш курс</span>
+                   </div>
+                   <span v-if="show_cur_algorythm" class="text-secondary col-auto p-2">=</span>
+                   <div v-if="show_cur_algorythm" class="col-auto text-center p-2">
+                       <h5 class="col-auto text-success" v-if="rates">[[ rates.usdtrub.default.toFixed(2) ]]</h5>
+                       <span style="font-size: 75%;" class="col-auto text-secondary">оффшорный RUB-USD</span>
+                   </div>
+                   <!-- Bank-->
+                   <span v-if="show_cur_algorythm && payment_method == 'bank'" class="text-secondary col-auto p-2">x</span>
+                   <div v-if="show_cur_algorythm && current_cur && payment_method == 'bank'" class="col-auto text-center p-2">
+                       <h5 class="col-auto text-success" v-if="rates">[[ rate_cur_usdt_forex.toFixed(3) ]]</h5>
+                       <span style="font-size: 75%;" class="col-auto text-secondary">forex [[ current_cur.code ]]-USD</span>
+                   </div>
+                   <span v-if="show_cur_algorythm && payment_method == 'bank'" class="text-secondary col-auto p-2">+</span>
+                   <div v-if="show_cur_algorythm && current_cur && payment_method == 'bank'" class="col-auto text-center p-2">
+                       <h5 class="col-auto text-success" v-if="rates">[[ rates.usdtswift_comission.default.toFixed(1) ]]%</h5>
+                       <span style="font-size: 75%;" class="col-auto text-secondary">комиссия агентов</span>
+                   </div>
+                   <!-- Alter -->
+                   <span v-if="show_cur_algorythm && payment_method == 'alter'" class="text-secondary col-auto p-2">/</span>
+                   <div v-if="show_cur_algorythm && current_cur && payment_method == 'alter'" class="col-auto text-center p-2">
+                       <h5 class="col-auto text-success" v-if="rates">[[ rate_cur_usdt_alter.toFixed(2) ]]</h5>
+                       <span style="font-size: 75%;" class="col-auto text-secondary">агентский [[ current_cur.code ]]-USD</span>
+                   </div>
+               </div>
+           </div>
+
+           <div class="w-100 p-3 text-center" v-if="payment_method === 'nonstandard'">
+               <a href="#contact" class="text-danger text-decoration-underline col-auto"><i class="bi bi-calculator m-1"></i>Обратиться за рассчеом</a>
+           </div>
+       </div>
+  </script>
+
+  <script type="text/x-template" id="contact-form-template">
+    <form ref="form" action="/" method="post" class="php-email-form" data-aos="fade-up" data-aos-delay="200">
+      <div class="row gy-4">
+
+        <div class="col-md-6">
+          <label for="name-field" class="pb-2">Ваше Имя</label>
+          <input v-model="edited_name" type="text" name="name" ref="name_field" class="form-control" required="">
+        </div>
+
+        <div class="col-md-6">
+          <label for="email-field" class="pb-2">Обратая связь: Email/Телефон</label>
+          <input v-model="edited_contact" type="text" class="form-control" name="contact" ref="contact_field" required="">
+        </div>
+
+        <div class="col-md-12">
+          <label for="message-field" class="pb-2">Тема</label>
+          <input v-model="edited_subject" type="text" class="form-control" name="subject" ref="subject_field">
+        </div>
+
+        <div class="col-md-12">
+          <label for="message-field" class="pb-2">Задайте вопрос</label>
+          <textarea v-model="edited_message" class="form-control" name="message" rows="10" ref="message_field" required=""></textarea>
+        </div>
+
+        <div class="col-md-12 text-center">
+          <div class="row w-100 m-1">
+            <span class="text-danger" v-if="error_msg">[[ error_msg ]]</span>
+            <span class="text-success" v-if="success_msg">[[ success_msg ]]</span>
+          </div>
+          <button v-if="!loading & !success_msg" @click.prevent="submit" type="submit">Отправить</button>
+          <img v-if="loading" src="/static/landing/payolin/assets/img/loading-buffering.gif" style="max-height:50px;"/>
+        </div>
+
+      </div>
+    </form>
+  </script>
+
+</head>
+
+<body class="index-page">
+
+  <header id="header" class="header d-flex align-items-center fixed-top">
+    <div class="container-fluid container-xl position-relative d-flex align-items-center">
+
+      <a href="" class="logo d-flex align-items-center me-auto">
+        <!-- Uncomment the line below if you also wish to use an image logo -->
+        <!-- <img src="assets/img/logo.png" alt=""> -->
+        <h1 class="sitename">{{ logo.caption }}</h1>
+      </a>
+
+      <nav id="navmenu" class="navmenu">
+        <ul>
+          {% for item in nav %}
+            <li><a href="#{{ item.section }}" class="active">{{ item.label }}</a></li>
+          {% endfor %}
+          <!--
+          <li><a href="#portfolio">Портфолио</a></li>
+          -->
+          <!--
+          <li><a href="#team">Команда</a></li>
+          -->
+          <!--
+          <li class="dropdown"><a href="#"><span>Dropdown</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+            <ul>
+              <li><a href="#">Dropdown 1</a></li>
+              <li class="dropdown"><a href="#"><span>Deep Dropdown</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+                <ul>
+                  <li><a href="#">Deep Dropdown 1</a></li>
+                  <li><a href="#">Deep Dropdown 2</a></li>
+                  <li><a href="#">Deep Dropdown 3</a></li>
+                  <li><a href="#">Deep Dropdown 4</a></li>
+                  <li><a href="#">Deep Dropdown 5</a></li>
+                </ul>
+              </li>
+              <li><a href="#">Dropdown 2</a></li>
+              <li><a href="#">Dropdown 3</a></li>
+              <li><a href="#">Dropdown 4</a></li>
+            </ul>
+          </li>
+          -->
+        </ul>
+        <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+      </nav>
+
+      <a class="btn-getstarted" href="#{{ begin.section }}">{{ begin.label }}</a>
+
+    </div>
+  </header>
+
+  <main class="main" id="app">
+
+    {{ ratios|json_script:"ratios-data" }}
+    {{ rates|json_script:"rates-data" }}
+    {{ banks|json_script:"banks-data" }}
+    <modal v-if="showModal" @close="showModal = false">
+        <!--
+      you can use custom content here to overwrite
+      default content
+    -->
+      <h3 style="width:100%;" slot="header">[[ modal.body.schemas[modal.cur_schema].title ]] <a @click.prevent="showModal = false" href="" style="float:right;" title="Закрыть"><i class="bi bi-x-circle"></i></a></h3>
+
+      <div slot="body" class="row w-100" style="padding-left: 2%; padding-right:2%;">
+          <table class="table">
+              <tbody>
+                <tr style="border-color:white;" v-for="(step, index) in modal.body.schemas[modal.cur_schema].steps">
+                    <td><b class="text-secondary">[[index+1]].</b></td>
+                    <td class="text-primary" >
+                        <div class="w-100">
+                            [[ step ]]
+                        </div>
+                        <i v-if="index < modal.body.schemas[modal.cur_schema].steps.length-1" class="bi bi-arrow-down-circle-fill"></i>
+                    </td>
+                </tr>
+              </tbody>
+          </table>
+          <div class="row w-100" v-if="[0,1].indexOf(modal.cur_schema) >= 0">
+            <a @click.prevent="navigate_to_calculator" href="" class="text-danger text-decoration-underline col-auto"><i class="bi bi-calculator m-1"></i>Рассчитать стоимость</a>
+            <a @click.prevent="navigate_to_contact_form" href="" class="text-danger text-decoration-underline col"><i class="bi bi-question-circle m-1"></i>Задать вопрос</a>
+          </div>
+      </div>
+
+      <div slot="footer" class="row w-100 text-center border rounded p-2">
+        <div>
+            <button class="btn btn-primary" @click="showModal = false">
+              Закрыть
+            </button>
+        </div>
+      </div>
+    </modal>
+
+    <!-- Hero Section -->
+    <section id="hero" class="hero section dark-background">
+
+      <div class="container">
+        <div class="row gy-4">
+          <div class="col-lg-6 order-2 order-lg-1 d-flex flex-column justify-content-center" data-aos="zoom-out">
+            <h1>{{ logo.caption }}</h1>
+            <p>Оплата и Доставка товаров из Китая и по всему Миру</p>
+            <div class="d-flex">
+              <a href="#contact" class="btn-get-started">Провести платеж</a>
+              <!--
+              <a href="https://www.youtube.com/watch?v=Y7f98aduVJ8" class="glightbox btn-watch-video d-flex align-items-center"><i class="bi bi-play-circle"></i><span>Watch Video</span></a>
+              -->
+            </div>
+          </div>
+          <div class="col-lg-6 order-1 order-lg-2 hero-img" data-aos="zoom-out" data-aos-delay="200">
+            <img src="/static/landing/payolin/assets/img/agent.webp" class="img-fluid animated" alt="">
+          </div>
+        </div>
+      </div>
+
+    </section><!-- /Hero Section -->
+
+    <!-- Clients Section -->
+    <section id="clients" class="clients section light-background">
+
+      <div class="container" data-aos="zoom-in">
+
+        <div class="swiper init-swiper">
+          <script type="application/json" class="swiper-config">
+            {
+              "loop": true,
+              "speed": 600,
+              "autoplay": {
+                "delay": 5000
+              },
+              "slidesPerView": "auto",
+              "pagination": {
+                "el": ".swiper-pagination",
+                "type": "bullets",
+                "clickable": true
+              },
+              "breakpoints": {
+                "320": {
+                  "slidesPerView": 2,
+                  "spaceBetween": 40
+                },
+                "480": {
+                  "slidesPerView": 3,
+                  "spaceBetween": 60
+                },
+                "640": {
+                  "slidesPerView": 4,
+                  "spaceBetween": 80
+                },
+                "992": {
+                  "slidesPerView": 5,
+                  "spaceBetween": 120
+                },
+                "1200": {
+                  "slidesPerView": 6,
+                  "spaceBetween": 120
+                }
+              }
+            }
+          </script>
+          <div class="swiper-wrapper align-items-center">
+            <div class="swiper-slide"><img src="/static/landing/payolin/assets/img/cur/CNY.png" class="img-fluid" title="Переводы в Китай" style="max-height:50px;"></div>
+            <div class="swiper-slide"><img src="/static/landing/payolin/assets/img/cur/ALIPAY.png" class="img-fluid" title="Переводы на AliPay резидентам и нерезидентам КНР"></div>
+            <div class="swiper-slide"><img src="/static/landing/payolin/assets/img/cur/WECHAT.png" class="img-fluid" title="Переводы на WeChat" style="max-height:40px;"></div>
+            <div class="swiper-slide"><img src="/static/landing/payolin/assets/img/cur/SWIFT.png" class="img-fluid" title="Переводы по системе SWIFT" style="max-height:40px;"></div>
+            <div class="swiper-slide"><img src="/static/landing/payolin/assets/img/cur/SEPA.png" class="img-fluid" title="Переводы по системе SEPA" style="max-height:40px;"></div>
+            <div class="swiper-slide"><img src="/static/landing/payolin/assets/img/cur/EORI.jpg" class="img-fluid" title="Переводы, требующие наличия номера EORI" style="max-height:40px;"></div>
+            <div class="swiper-slide"><img src="/static/landing/payolin/assets/img/cur/VISA.png" class="img-fluid" title="Переводы на карты VISA по миру" style="max-height:40px;"></div>
+            <div class="swiper-slide"><img src="/static/landing/payolin/assets/img/cur/MASTERCARD.png" class="img-fluid" title="Переводы на карты MasterCard по миру" style="max-height:40px;"></div>
+            <div class="swiper-slide"><img src="/static/landing/payolin/assets/img/cur/UNIONPAY.png" class="img-fluid" title="Переводы на карты китайским партнерам" style="max-height:40px;"></div>
+            <!--
+            <div class="swiper-slide"><img src="/static/landing/payolin/assets/img/clients/client-5.png" class="img-fluid" alt=""></div>
+            <div class="swiper-slide"><img src="/static/landing/payolin/assets/img/clients/client-6.png" class="img-fluid" alt=""></div>
+            <div class="swiper-slide"><img src="/static/landing/payolin/assets/img/clients/client-7.png" class="img-fluid" alt=""></div>
+            <div class="swiper-slide"><img src="/static/landing/payolin/assets/img/clients/client-8.png" class="img-fluid" alt=""></div>
+            -->
+          </div>
+        </div>
+
+      </div>
+
+    </section><!-- /Clients Section -->
+
+    <!-- Payments Section -->
+    <section id="payments" class="services section light-background">
+
+      <!-- Section Title -->
+      <div class="container section-title" data-aos="fade-up">
+        <h2>Платежные решения</h2>
+        <h5>Широкий выбор платежных методов.</h5>
+        <span class="text-secondary">Всё для Вашего бизнеса в одном месте.</span>
+        <a @click.prevent="navigate_to_contact_form" href="" class="text-danger text-decoration-underline col"><i class="bi bi-question-circle m-1"></i>Провести платеж</a>
+      </div><!-- End Section Title -->
+
+      <div class="container">
+
+        <div class="row gy-3">
+
+          <div class="col" data-aos="fade-up" data-aos-delay="100">
+            <div class="service-item position-relative">
+              <div class="icon"><i class="bi bi-{{ payments.0.icon }} icon"></i></div>
+              <h4>{{ payments.0.label }}</h4>
+              <p>Оплата инвойсов по банковским реквизитам по всему миру</p>
+              <div class="w-100 text-center h-50">
+                <a @click.prevent="show_details('bank')" href="#" class="read-more">
+                    <span>Узнать больше</span>
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+              </div>
+            </div>
+          </div><!-- End Service Item -->
+
+          <div class="col" data-aos="fade-up" data-aos-delay="200">
+            <div class="service-item position-relative">
+              <div class="icon"><i class="bi bi-{{ payments.1.icon }} icon"></i></div>
+              <h4>{{ payments.1.label }}</h4>
+              <ul>
+                  <li>AliPay</li>
+                  <li>WeChat</li>
+                  <li>На карты (Visa, MasterCard, UnionPay)</li>
+              </ul>
+              <h6>Закрывающие документы для ФНС</h6>
+              <div class="w-100 text-center h-50">
+                <a @click.prevent="show_details('alter')" href="#" class="read-more">
+                    <span>Узнать больше</span>
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+              </div>
+            </div>
+          </div><!-- End Service Item -->
+
+          <div class="col" data-aos="fade-up" data-aos-delay="300">
+            <div class="service-item position-relative">
+              <div class="icon"><i class="bi bi-{{ payments.2.icon }} icon"></i></div>
+              <h4>{{ payments.2.label }}</h4>
+              <h6>Финансовая и/или транспортная логистика под запрос</h6>
+              <div class="text-center w-100">
+                 <button @click.prevent="navigate_to_contact_form" class="btn btn-primary btn-sm">Сообщите о Вашем кейсе</button>
+
+              </div>
+            </div>
+          </div><!-- End Service Item -->
+
+          <!--
+          <div class="col-xl-3 col-md-6 d-flex" data-aos="fade-up" data-aos-delay="400">
+            <div class="service-item position-relative">
+              <div class="icon"><i class="bi bi-broadcast icon"></i></div>
+              <h4><a href="" class="stretched-link">Nemo Enim</a></h4>
+              <p>At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis</p>
+            </div>
+          </div>
+          -->
+
+        </div>
+
+      </div>
+
+    </section><!-- /PAyments Section -->
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="pricing section light-background">
+
+      <!-- Section Title -->
+      <div class="container section-title" data-aos="fade-up">
+        <h2>Калькулятор</h2>
+        <p>Проведите оценку курсов и сумм для совершения платежа контрагенту</p>
+        <a @click.prevent="navigate_to_contact_form" href="" class="text-danger text-decoration-underline col"><i class="bi bi-question-circle m-1"></i>Провести платеж</a>
+      </div><!-- End Section Title -->
+
+      <div class="container">
+        <div class="row w-100">
+            <div class="pricing-item m-3 p-3">
+                <ul class="nav nav-pills">
+                  {% for payment in payments %}
+                    <li class="nav-item">
+                        <a @click.prevent="select_payment_method('{{ payment.id }}')" class="nav-link" v-bind:class="{'active': selected_payment_method == '{{ payment.id }}'}" href="">
+                            <i class="bi bi-{{ payment.icon }} icon"
+                               v-bind:style="{color: selected_payment_method == '{{ payment.id }}' ? 'white' : '#47b2e4'}"
+                               >
+                            </i>
+                            {{ payment.label }}
+                        </a>
+                    </li>
+                  {% endfor %}
+                </ul>
+                <calculator
+                        :payment_method="selected_payment_method"
+                >
+                </calculator>
+            </div>
+        </div>
+
+{#        <div class="row gy-2">#}
+{##}
+{#          <div class="col-lg-4" data-aos="zoom-in" data-aos-delay="100">#}
+{#            <div class="pricing-item">#}
+{##}
+{#              <div class="icon"><i class="bi bi-{{ payments.0.icon }} icon"></i></div>#}
+{#              <h4><a href="" class="">{{ payments.0.label }}</a></h4>#}
+{#              <p>Оплата инвойсов по банковским реквизитам по всему миру</p>#}
+{##}
+{#              <h3>Free Plan</h3>#}
+{#              <h4><sup>$</sup>0<span> / month</span></h4>#}
+{#              <ul>#}
+{#                <li><i class="bi bi-check"></i> <span>Quam adipiscing vitae proin</span></li>#}
+{#                <li><i class="bi bi-check"></i> <span>Nec feugiat nisl pretium</span></li>#}
+{#                <li><i class="bi bi-check"></i> <span>Nulla at volutpat diam uteera</span></li>#}
+{#                <li class="na"><i class="bi bi-x"></i> <span>Pharetra massa massa ultricies</span></li>#}
+{#                <li class="na"><i class="bi bi-x"></i> <span>Massa ultricies mi quis hendrerit</span></li>#}
+{#              </ul>#}
+{#              <a href="#" class="buy-btn">Buy Now</a>#}
+{##}
+{#            </div>#}
+{#          </div><!-- End Pricing Item -->#}
+{##}
+{#          <div class="col-lg-4" data-aos="zoom-in" data-aos-delay="200">#}
+{#            <div class="pricing-item featured">#}
+{#              <h3>Business Plan</h3>#}
+{#              <h4><sup>$</sup>29<span> / month</span></h4>#}
+{#              <ul>#}
+{#                <li><i class="bi bi-check"></i> <span>Quam adipiscing vitae proin</span></li>#}
+{#                <li><i class="bi bi-check"></i> <span>Nec feugiat nisl pretium</span></li>#}
+{#                <li><i class="bi bi-check"></i> <span>Nulla at volutpat diam uteera</span></li>#}
+{#                <li><i class="bi bi-check"></i> <span>Pharetra massa massa ultricies</span></li>#}
+{#                <li><i class="bi bi-check"></i> <span>Massa ultricies mi quis hendrerit</span></li>#}
+{#              </ul>#}
+{#              <a href="#" class="buy-btn">Buy Now</a>#}
+{#            </div>#}
+{#          </div><!-- End Pricing Item -->#}
+{##}
+{#          <div class="col-lg-4" data-aos="zoom-in" data-aos-delay="300">#}
+{#            <div class="pricing-item">#}
+{#              <h3>Developer Plan</h3>#}
+{#              <h4><sup>$</sup>49<span> / month</span></h4>#}
+{#              <ul>#}
+{#                <li><i class="bi bi-check"></i> <span>Quam adipiscing vitae proin</span></li>#}
+{#                <li><i class="bi bi-check"></i> <span>Nec feugiat nisl pretium</span></li>#}
+{#                <li><i class="bi bi-check"></i> <span>Nulla at volutpat diam uteera</span></li>#}
+{#                <li><i class="bi bi-check"></i> <span>Pharetra massa massa ultricies</span></li>#}
+{#                <li><i class="bi bi-check"></i> <span>Massa ultricies mi quis hendrerit</span></li>#}
+{#              </ul>#}
+{#              <a href="#" class="buy-btn">Buy Now</a>#}
+{#            </div>#}
+{#          </div><!-- End Pricing Item -->#}
+{##}
+{#        </div>#}
+
+      </div>
+
+    </section><!-- /Pricing Section -->
+
+{#    <!-- Skills Section -->#}
+{#    <section id="skills" class="skills section">#}
+{##}
+{#      <div class="container" data-aos="fade-up" data-aos-delay="100">#}
+{##}
+{#        <div class="row">#}
+{##}
+{#          <div class="col-lg-6 d-flex align-items-center">#}
+{#            <img src="/static/landing/payolin/assets/img/skills.png" class="img-fluid" alt="">#}
+{#          </div>#}
+{##}
+{#          <div class="col-lg-6 pt-4 pt-lg-0 content">#}
+{##}
+{#            <h3>Voluptatem dignissimos provident quasi corporis voluptas</h3>#}
+{#            <p class="fst-italic">#}
+{#              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.#}
+{#            </p>#}
+{##}
+{#            <div class="skills-content skills-animation">#}
+{##}
+{#              <div class="progress">#}
+{#                <span class="skill"><span>HTML</span> <i class="val">100%</i></span>#}
+{#                <div class="progress-bar-wrap">#}
+{#                  <div class="progress-bar" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>#}
+{#                </div>#}
+{#              </div><!-- End Skills Item -->#}
+{##}
+{#              <div class="progress">#}
+{#                <span class="skill"><span>CSS</span> <i class="val">90%</i></span>#}
+{#                <div class="progress-bar-wrap">#}
+{#                  <div class="progress-bar" role="progressbar" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100"></div>#}
+{#                </div>#}
+{#              </div><!-- End Skills Item -->#}
+{##}
+{#              <div class="progress">#}
+{#                <span class="skill"><span>JavaScript</span> <i class="val">75%</i></span>#}
+{#                <div class="progress-bar-wrap">#}
+{#                  <div class="progress-bar" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>#}
+{#                </div>#}
+{#              </div><!-- End Skills Item -->#}
+{##}
+{#              <div class="progress">#}
+{#                <span class="skill"><span>Photoshop</span> <i class="val">55%</i></span>#}
+{#                <div class="progress-bar-wrap">#}
+{#                  <div class="progress-bar" role="progressbar" aria-valuenow="55" aria-valuemin="0" aria-valuemax="100"></div>#}
+{#                </div>#}
+{#              </div><!-- End Skills Item -->#}
+{##}
+{#            </div>#}
+{##}
+{#          </div>#}
+{#        </div>#}
+{##}
+{#      </div>#}
+{##}
+{#    </section><!-- /Skills Section -->#}
+
+{#    <!-- Call To Action Section -->#}
+{#    <section id="call-to-action" class="call-to-action section dark-background">#}
+{##}
+{#      <img src="/static/landing/payolin/assets/img/cta-bg.jpg" alt="">#}
+{##}
+{#      <div class="container">#}
+{##}
+{#        <div class="row" data-aos="zoom-in" data-aos-delay="100">#}
+{#          <div class="col-xl-9 text-center text-xl-start">#}
+{#            <h3>Call To Action</h3>#}
+{#            <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>#}
+{#          </div>#}
+{#          <div class="col-xl-3 cta-btn-container text-center">#}
+{#            <a class="cta-btn align-middle" href="#">Call To Action</a>#}
+{#          </div>#}
+{#        </div>#}
+{##}
+{#      </div>#}
+{##}
+{#    </section><!-- /Call To Action Section -->#}
+
+    <!-- Portfolio Section -->
+{#    <section id="portfolio" class="portfolio section">#}
+{##}
+{#      <!-- Section Title -->#}
+{#      <div class="container section-title" data-aos="fade-up">#}
+{#        <h2>Portfolio</h2>#}
+{#        <p>Necessitatibus eius consequatur ex aliquid fuga eum quidem sint consectetur velit</p>#}
+{#      </div><!-- End Section Title -->#}
+{##}
+{#      <div class="container">#}
+{##}
+{#        <div class="isotope-layout" data-default-filter="*" data-layout="masonry" data-sort="original-order">#}
+{##}
+{#          <ul class="portfolio-filters isotope-filters" data-aos="fade-up" data-aos-delay="100">#}
+{#            <li data-filter="*" class="filter-active">All</li>#}
+{#            <li data-filter=".filter-app">App</li>#}
+{#            <li data-filter=".filter-product">Card</li>#}
+{#            <li data-filter=".filter-branding">Web</li>#}
+{#          </ul><!-- End Portfolio Filters -->#}
+{##}
+{#          <div class="row gy-4 isotope-container" data-aos="fade-up" data-aos-delay="200">#}
+{##}
+{#            <div class="col-lg-4 col-md-6 portfolio-item isotope-item filter-app">#}
+{#              <img src="/static/landing/payolin/assets/img/masonry-portfolio/masonry-portfolio-1.jpg" class="img-fluid" alt="">#}
+{#              <div class="portfolio-info">#}
+{#                <h4>App 1</h4>#}
+{#                <p>Lorem ipsum, dolor sit</p>#}
+{#                <a href="/static/landing/payolin/assets/img/masonry-portfolio/masonry-portfolio-1.jpg" title="App 1" data-gallery="portfolio-gallery-app" class="glightbox preview-link"><i class="bi bi-zoom-in"></i></a>#}
+{#                <a href="portfolio-details.html" title="More Details" class="details-link"><i class="bi bi-link-45deg"></i></a>#}
+{#              </div>#}
+{#            </div><!-- End Portfolio Item -->#}
+{##}
+{#            <div class="col-lg-4 col-md-6 portfolio-item isotope-item filter-product">#}
+{#              <img src="/static/landing/payolin/assets/img/masonry-portfolio/masonry-portfolio-2.jpg" class="img-fluid" alt="">#}
+{#              <div class="portfolio-info">#}
+{#                <h4>Product 1</h4>#}
+{#                <p>Lorem ipsum, dolor sit</p>#}
+{#                <a href="/static/landing/payolin/assets/img/masonry-portfolio/masonry-portfolio-2.jpg" title="Product 1" data-gallery="portfolio-gallery-product" class="glightbox preview-link"><i class="bi bi-zoom-in"></i></a>#}
+{#                <a href="portfolio-details.html" title="More Details" class="details-link"><i class="bi bi-link-45deg"></i></a>#}
+{#              </div>#}
+{#            </div><!-- End Portfolio Item -->#}
+{##}
+{#            <div class="col-lg-4 col-md-6 portfolio-item isotope-item filter-branding">#}
+{#              <img src="/static/landing/payolin/assets/img/masonry-portfolio/masonry-portfolio-3.jpg" class="img-fluid" alt="">#}
+{#              <div class="portfolio-info">#}
+{#                <h4>Branding 1</h4>#}
+{#                <p>Lorem ipsum, dolor sit</p>#}
+{#                <a href="/static/landing/payolin/assets/img/masonry-portfolio/masonry-portfolio-3.jpg" title="Branding 1" data-gallery="portfolio-gallery-branding" class="glightbox preview-link"><i class="bi bi-zoom-in"></i></a>#}
+{#                <a href="portfolio-details.html" title="More Details" class="details-link"><i class="bi bi-link-45deg"></i></a>#}
+{#              </div>#}
+{#            </div><!-- End Portfolio Item -->#}
+{##}
+{#            <div class="col-lg-4 col-md-6 portfolio-item isotope-item filter-app">#}
+{#              <img src="/static/landing/payolin/assets/img/masonry-portfolio/masonry-portfolio-4.jpg" class="img-fluid" alt="">#}
+{#              <div class="portfolio-info">#}
+{#                <h4>App 2</h4>#}
+{#                <p>Lorem ipsum, dolor sit</p>#}
+{#                <a href="/static/landing/payolin/assets/img/masonry-portfolio/masonry-portfolio-4.jpg" title="App 2" data-gallery="portfolio-gallery-app" class="glightbox preview-link"><i class="bi bi-zoom-in"></i></a>#}
+{#                <a href="portfolio-details.html" title="More Details" class="details-link"><i class="bi bi-link-45deg"></i></a>#}
+{#              </div>#}
+{#            </div><!-- End Portfolio Item -->#}
+{##}
+{#            <div class="col-lg-4 col-md-6 portfolio-item isotope-item filter-product">#}
+{#              <img src="/static/landing/payolin/assets/img/masonry-portfolio/masonry-portfolio-5.jpg" class="img-fluid" alt="">#}
+{#              <div class="portfolio-info">#}
+{#                <h4>Product 2</h4>#}
+{#                <p>Lorem ipsum, dolor sit</p>#}
+{#                <a href="/static/landing/payolin/assets/img/masonry-portfolio/masonry-portfolio-5.jpg" title="Product 2" data-gallery="portfolio-gallery-product" class="glightbox preview-link"><i class="bi bi-zoom-in"></i></a>#}
+{#                <a href="portfolio-details.html" title="More Details" class="details-link"><i class="bi bi-link-45deg"></i></a>#}
+{#              </div>#}
+{#            </div><!-- End Portfolio Item -->#}
+{##}
+{#            <div class="col-lg-4 col-md-6 portfolio-item isotope-item filter-branding">#}
+{#              <img src="/static/landing/payolin/assets/img/masonry-portfolio/masonry-portfolio-6.jpg" class="img-fluid" alt="">#}
+{#              <div class="portfolio-info">#}
+{#                <h4>Branding 2</h4>#}
+{#                <p>Lorem ipsum, dolor sit</p>#}
+{#                <a href="/static/landing/payolin/assets/img/masonry-portfolio/masonry-portfolio-6.jpg" title="Branding 2" data-gallery="portfolio-gallery-branding" class="glightbox preview-link"><i class="bi bi-zoom-in"></i></a>#}
+{#                <a href="portfolio-details.html" title="More Details" class="details-link"><i class="bi bi-link-45deg"></i></a>#}
+{#              </div>#}
+{#            </div><!-- End Portfolio Item -->#}
+{##}
+{#            <div class="col-lg-4 col-md-6 portfolio-item isotope-item filter-app">#}
+{#              <img src="/static/landing/payolin/assets/img/masonry-portfolio/masonry-portfolio-7.jpg" class="img-fluid" alt="">#}
+{#              <div class="portfolio-info">#}
+{#                <h4>App 3</h4>#}
+{#                <p>Lorem ipsum, dolor sit</p>#}
+{#                <a href="/static/landing/payolin/assets/img/masonry-portfolio/masonry-portfolio-7.jpg" title="App 3" data-gallery="portfolio-gallery-app" class="glightbox preview-link"><i class="bi bi-zoom-in"></i></a>#}
+{#                <a href="portfolio-details.html" title="More Details" class="details-link"><i class="bi bi-link-45deg"></i></a>#}
+{#              </div>#}
+{#            </div><!-- End Portfolio Item -->#}
+{##}
+{#            <div class="col-lg-4 col-md-6 portfolio-item isotope-item filter-product">#}
+{#              <img src="/static/landing/payolin/assets/img/masonry-portfolio/masonry-portfolio-8.jpg" class="img-fluid" alt="">#}
+{#              <div class="portfolio-info">#}
+{#                <h4>Product 3</h4>#}
+{#                <p>Lorem ipsum, dolor sit</p>#}
+{#                <a href="/static/landing/payolin/assets/img/masonry-portfolio/masonry-portfolio-8.jpg" title="Product 3" data-gallery="portfolio-gallery-product" class="glightbox preview-link"><i class="bi bi-zoom-in"></i></a>#}
+{#                <a href="portfolio-details.html" title="More Details" class="details-link"><i class="bi bi-link-45deg"></i></a>#}
+{#              </div>#}
+{#            </div><!-- End Portfolio Item -->#}
+{##}
+{#            <div class="col-lg-4 col-md-6 portfolio-item isotope-item filter-branding">#}
+{#              <img src="/static/landing/payolin/assets/img/masonry-portfolio/masonry-portfolio-9.jpg" class="img-fluid" alt="">#}
+{#              <div class="portfolio-info">#}
+{#                <h4>Branding 3</h4>#}
+{#                <p>Lorem ipsum, dolor sit</p>#}
+{#                <a href="/static/landing/payolin/assets/img/masonry-portfolio/masonry-portfolio-9.jpg" title="Branding 2" data-gallery="portfolio-gallery-branding" class="glightbox preview-link"><i class="bi bi-zoom-in"></i></a>#}
+{#                <a href="portfolio-details.html" title="More Details" class="details-link"><i class="bi bi-link-45deg"></i></a>#}
+{#              </div>#}
+{#            </div><!-- End Portfolio Item -->#}
+{##}
+{#          </div><!-- End Portfolio Container -->#}
+{##}
+{#        </div>#}
+{##}
+{#      </div>#}
+{##}
+{#    </section><!-- /Portfolio Section -->#}
+
+
+{#    <!-- Team Section -->#}
+{#    <section id="team" class="team section">#}
+{##}
+{#      <!-- Section Title -->#}
+{#      <div class="container section-title" data-aos="fade-up">#}
+{#        <h2>Team</h2>#}
+{#        <p>Necessitatibus eius consequatur ex aliquid fuga eum quidem sint consectetur velit</p>#}
+{#      </div><!-- End Section Title -->#}
+{##}
+{#      <div class="container">#}
+{##}
+{#        <div class="row gy-4">#}
+{##}
+{#          <div class="col-lg-6" data-aos="fade-up" data-aos-delay="100">#}
+{#            <div class="team-member d-flex align-items-start">#}
+{#              <div class="pic"><img src="/static/landing/payolin/assets/img/team/team-1.jpg" class="img-fluid" alt=""></div>#}
+{#              <div class="member-info">#}
+{#                <h4>Walter White</h4>#}
+{#                <span>Chief Executive Officer</span>#}
+{#                <p>Explicabo voluptatem mollitia et repellat qui dolorum quasi</p>#}
+{#                <div class="social">#}
+{#                  <a href=""><i class="bi bi-twitter-x"></i></a>#}
+{#                  <a href=""><i class="bi bi-facebook"></i></a>#}
+{#                  <a href=""><i class="bi bi-instagram"></i></a>#}
+{#                  <a href=""> <i class="bi bi-linkedin"></i> </a>#}
+{#                </div>#}
+{#              </div>#}
+{#            </div>#}
+{#          </div><!-- End Team Member -->#}
+{##}
+{#          <div class="col-lg-6" data-aos="fade-up" data-aos-delay="200">#}
+{#            <div class="team-member d-flex align-items-start">#}
+{#              <div class="pic"><img src="/static/landing/payolin/assets/img/team/team-2.jpg" class="img-fluid" alt=""></div>#}
+{#              <div class="member-info">#}
+{#                <h4>Sarah Jhonson</h4>#}
+{#                <span>Product Manager</span>#}
+{#                <p>Aut maiores voluptates amet et quis praesentium qui senda para</p>#}
+{#                <div class="social">#}
+{#                  <a href=""><i class="bi bi-twitter-x"></i></a>#}
+{#                  <a href=""><i class="bi bi-facebook"></i></a>#}
+{#                  <a href=""><i class="bi bi-instagram"></i></a>#}
+{#                  <a href=""> <i class="bi bi-linkedin"></i> </a>#}
+{#                </div>#}
+{#              </div>#}
+{#            </div>#}
+{#          </div><!-- End Team Member -->#}
+{##}
+{#          <div class="col-lg-6" data-aos="fade-up" data-aos-delay="300">#}
+{#            <div class="team-member d-flex align-items-start">#}
+{#              <div class="pic"><img src="/static/landing/payolin/assets/img/team/team-3.jpg" class="img-fluid" alt=""></div>#}
+{#              <div class="member-info">#}
+{#                <h4>William Anderson</h4>#}
+{#                <span>CTO</span>#}
+{#                <p>Quisquam facilis cum velit laborum corrupti fuga rerum quia</p>#}
+{#                <div class="social">#}
+{#                  <a href=""><i class="bi bi-twitter-x"></i></a>#}
+{#                  <a href=""><i class="bi bi-facebook"></i></a>#}
+{#                  <a href=""><i class="bi bi-instagram"></i></a>#}
+{#                  <a href=""> <i class="bi bi-linkedin"></i> </a>#}
+{#                </div>#}
+{#              </div>#}
+{#            </div>#}
+{#          </div><!-- End Team Member -->#}
+{##}
+{#          <div class="col-lg-6" data-aos="fade-up" data-aos-delay="400">#}
+{#            <div class="team-member d-flex align-items-start">#}
+{#              <div class="pic"><img src="/static/landing/payolin/assets/img/team/team-4.jpg" class="img-fluid" alt=""></div>#}
+{#              <div class="member-info">#}
+{#                <h4>Amanda Jepson</h4>#}
+{#                <span>Accountant</span>#}
+{#                <p>Dolorum tempora officiis odit laborum officiis et et accusamus</p>#}
+{#                <div class="social">#}
+{#                  <a href=""><i class="bi bi-twitter-x"></i></a>#}
+{#                  <a href=""><i class="bi bi-facebook"></i></a>#}
+{#                  <a href=""><i class="bi bi-instagram"></i></a>#}
+{#                  <a href=""> <i class="bi bi-linkedin"></i> </a>#}
+{#                </div>#}
+{#              </div>#}
+{#            </div>#}
+{#          </div><!-- End Team Member -->#}
+{##}
+{#        </div>#}
+{##}
+{#      </div>#}
+{##}
+{#    </section><!-- /Team Section -->#}
+
+
+    <!-- About Section -->
+    <section id="about" class="about section">
+
+      <!-- Section Title -->
+      <div class="container section-title" data-aos="fade-up">
+        <h2>О Нас</h2>
+      </div><!-- End Section Title -->
+
+      <div class="container">
+
+        <div class="row gy-4">
+
+          <div class="col-lg-6 content" data-aos="fade-up" data-aos-delay="100">
+            <p>
+                Добро пожаловать в <b>{{ logo.caption }}</b> – компанию, которая <b>упрощает и ускоряет</b> международные платежи и <b>доставку</b> товаров для <b>малого и среднего</b> бизнеса,
+                работающего на крупных маркетплейсах, таких как <b>OZON и Wildberries</b>.
+                Мы предлагаем удобные и безопасные решения для оплаты и сопровождения закупок в Китае, чтобы Вы могли сосредоточиться на <b>развитии</b> своего бизнеса..
+            </p>
+            <ul>
+              <li><i class="bi bi-check2-circle"></i> <span>Общайтесь с нами через поддержку или <b>Telegram-Сервис</b></span></li>
+              <li><i class="bi bi-check2-circle"></i> <span>Гарантия <b>прозрачности и надежности</b> на всех этапах работы.</span></li>
+              <li><i class="bi bi-check2-circle"></i> <span>Полный пакет документов для комфортного общения с <b>ФНС</b>.</span></li>
+              <li><i class="bi bi-check2-circle"></i> <span>Минимизируйте затраты на <b>конвертации</b> за счет мультивалютной инфраструктуры.</span></li>
+            </ul>
+          </div>
+
+          <div class="col-lg-6" data-aos="fade-up" data-aos-delay="200">
+            <p>Выбирая <b>{{ logo.caption }}</b>, Вы выбираете уверенность, экономию времени и снижение затрат. Мы становимся надежным партнером, позволяя вам сосредоточиться на ключевых задачах. </p>
+            <a href="#payments" class="read-more"><span>Платежные решения</span><i class="bi bi-arrow-right"></i></a>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section><!-- /About Section -->
+
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="testimonials section">
+
+      <!-- Section Title -->
+      <div class="container section-title" data-aos="fade-up">
+        <h2>Отзывы</h2>
+        <p>Представители бизнеса делятся мнением</p>
+      </div><!-- End Section Title -->
+
+      <div class="container" data-aos="fade-up" data-aos-delay="100">
+
+        <div class="swiper init-swiper">
+          <script type="application/json" class="swiper-config">
+            {
+              "loop": true,
+              "speed": 600,
+              "autoplay": {
+                "delay": 5000
+              },
+              "slidesPerView": "auto",
+              "pagination": {
+                "el": ".swiper-pagination",
+                "type": "bullets",
+                "clickable": true
+              }
+            }
+          </script>
+          <div class="swiper-wrapper">
+
+            {% for item in testimonials %}
+            <!-- Begin testimonial item -->
+            <div class="swiper-slide">
+                <div class="testimonial-item">
+                <!--
+                <img src="/static/landing/payolin/assets/img/testimonials/testimonials-2.jpg" class="testimonial-img" alt="">
+                -->
+                <h3>{{ item.name }}</h3>
+                <h4>{{ item.agenda }}</h4>
+                <!--
+                <div class="stars">
+                  <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                </div>
+                -->
+                <p>
+                  <i class="bi bi-quote quote-icon-left"></i>
+                  <span>{{ item.text }}</span>
+                  <i class="bi bi-quote quote-icon-right"></i>
+                </p>
+              </div>
+            </div><!-- End testimonial item -->
+            {% endfor %}
+
+          </div>
+          <div class="swiper-pagination"></div>
+        </div>
+
+      </div>
+
+    </section><!-- /Testimonials Section -->
+
+    <!-- Why Us Section -->
+    <section id="why-us" class="section why-us light-background" data-builder="section">
+
+      <div class="container-fluid">
+
+        <div class="row gy-4">
+
+          <div class="col-lg-10 d-flex flex-column justify-content-center order-2 order-lg-1">
+
+            <div class="content px-xl-5" data-aos="fade-up" data-aos-delay="100">
+              <h3><span>Почему вам стоит начать пользоваться </span><strong>Payolin уже сейчас? </strong></h3>
+              <h5>Начните с оплаты через Payolin уже сейчас — это первый шаг к безопасному и прозрачному бизнесу.</h5>
+            </div>
+
+            <div class="faq-container px-xl-5" data-aos="fade-up" data-aos-delay="200">
+
+              <div class="faq-item faq-active">
+
+                <h3><span>01</span> Гибкие способы оплаты для ваших поставщиков</h3>
+                <div class="faq-content">
+                    <p>С <b>Payolin</b> вы можете проводить оплату не только через традиционный банковский перевод,
+                        но и с использованием <b>AliPay, WeChat</b>, а также переводов на </b>карты</p> физических лиц
+                      поставщиков в Китае. Это расширяет ваши возможности взаимодействия с
+                    поставщиками и делает оплату максимально <b>удобной и быстрой</b>.
+                  </p>
+                </div>
+                <i class="faq-toggle bi bi-chevron-right"></i>
+              </div><!-- End Faq item-->
+
+              <div class="faq-item faq-active">
+                <h3><span>02</span> Документы для бухгалтерии, подтверждающие законность оплаты</h3>
+                <div class="faq-content">
+                    <p>Наш сервис предоставляет всю необходимую документацию для <b>бухгалтерского учёта</b>,
+                      подтверждая факт оплаты по безналичному расчёту. <b class="text-danger">Вам больше не придётся снимать
+                            наличные для оплаты товаров</b> — мы упрощаем процесс и делаем его полностью прозрачным.</p>
+                </div>
+                <i class="faq-toggle bi bi-chevron-right"></i>
+              </div><!-- End Faq item-->
+
+              <div class="faq-item faq-active">
+                <h3><span>03</span> Возможность отражения платежей как оплаты в счёт будущих поставок</h3>
+                <div class="faq-content">
+                    <p>Платежи через <b>Payolin</b> могут быть отражены в бухгалтерии как <b>предоплата за
+                        будущие поставки</b>. Это даёт вам гибкость в учёте, уменьшая необходимость сразу
+                      фиксировать товар и снижая административные риски.</p>
+                </div>
+                <i class="faq-toggle bi bi-chevron-right"></i>
+              </div><!-- End Faq item-->
+
+              <div class="faq-item faq-active">
+                <h3><span>04</span> Кредитование под товарный оборот</h3>
+                <div class="faq-content">
+                    <p><b>Payolin</b> позволяет вам получить <b>поддержку в виде кредита</b> на оплату товаров.
+                    На основе кредитного рейтинга, присваиваемого нашим банковским партнёром,
+                        мы можем <b>частично или полностью оплатить ваши счета,</b> тем самым обеспечивая гибкость в
+                        управлении товарным оборотом. Погашение кредита происходит <b>по мере реализации товара</b>,
+                    что упрощает управление финансовыми потоками и снижает нагрузку на оборотные средства.</p>
+                </div>
+                <i class="faq-toggle bi bi-chevron-right"></i>
+              </div><!-- End Faq item-->
+
+              <div class="faq-item faq-active">
+                <h3><span>05</span> Кредитование под товарный оборот</h3>
+                <div class="faq-content">
+                    <p><b>Payolin</b> позволяет вам получить <b>поддержку в виде кредита</b> на оплату товаров.
+                    На основе кредитного рейтинга, присваиваемого нашим банковским партнёром,
+                        мы можем <b>частично или полностью оплатить ваши счета,</b> тем самым обеспечивая гибкость в
+                        управлении товарным оборотом. Погашение кредита происходит <b>по мере реализации товара</b>,
+                    что упрощает управление финансовыми потоками и снижает нагрузку на оборотные средства.</p>
+                </div>
+                <i class="faq-toggle bi bi-chevron-right"></i>
+              </div><!-- End Faq item-->
+
+              <div class="faq-item faq-active">
+                <h3><span>06</span> Снижение налоговой нагрузки за счёт учёта комиссии в затраты</h3>
+                <div class="faq-content">
+                    <p>Комиссия за услуги по переводу через <b>Payolin</b> может быть принята к
+                        <b>бухгалтерским расходам</b>. Это значит, что такие затраты <b class="text-danger">снижают налогооблагаемую прибыль</b>,
+                        позволяя оптимизировать налоговую нагрузку и делая использование сервиса финансово <b>выгодным</b> для
+                    вашего бизнеса.</p>
+                </div>
+                <i class="faq-toggle bi bi-chevron-right"></i>
+              </div><!-- End Faq item-->
+
+              <div class="faq-item faq-active">
+                <h3><span>07</span> Снижение налоговых рисков</h3>
+                <div class="faq-content">
+                    <p><b>Payolin</b> помогает избежать частых проблем с налоговыми органами.
+                        <b>Вместо того чтобы снимать наличные средства или оформлять займы</b>, создавая долг компании
+                        и <b class="text-danger">рискуя обвинениями в скрытом выводе дивидендов без уплаты НДФЛ</b>, вы можете проводить платежи
+                    официально и прозрачно. Это защищает ваш бизнес от дополнительных налоговых проверок
+                    и штрафов.</p>
+                </div>
+                <i class="faq-toggle bi bi-chevron-right"></i>
+              </div><!-- End Faq item-->
+
+              <div class="faq-item faq-active">
+                <h3><span>08</span> Устранение рисков работы с серыми обменниками</h3>
+                <div class="faq-content">
+                    <p><b>Payolin</b> позволяет <b>безопасно</b> переводить деньги поставщикам,
+                        <b>минуя серые обменники и нелегальные схемы</b>. С нами вы избегаете лишних комиссий и
+                    юридических рисков, которые обычно сопровождают серый рынок.</p>
+                </div>
+                <i class="faq-toggle bi bi-chevron-right"></i>
+              </div><!-- End Faq item-->
+
+              <div class="faq-item faq-active">
+                <h3><span>09</span> Гарантия перевода и подтверждение оплаты</h3>
+                <div class="faq-content">
+                    <p>Мы гарантируем, что <b>ваши деньги дойдут до поставщика</b>.
+                    Наш сервис снижает риски потерь при международных переводах,
+                    обеспечивая надёжность транзакций и сохраняя ваш бизнес от <b>ненужных
+                            финансовых потерь</b>.</p>
+                </div>
+                <i class="faq-toggle bi bi-chevron-right"></i>
+              </div><!-- End Faq item-->
+
+            </div>
+
+          </div>
+
+          <div class="col-lg-2 order-1 order-lg-2 why-us-img">
+            <img src="/static/landing/payolin/assets/img/why-us3.png" class="img-fluid" alt="" data-aos="zoom-in" data-aos-delay="100">
+          </div>
+        </div>
+
+      </div>
+
+    </section><!-- /Why Us Section -->
+
+{#    <!-- Faq 2 Section -->#}
+{#    <section id="faq-2" class="faq-2 section light-background">#}
+{##}
+{#      <!-- Section Title -->#}
+{#      <div class="container section-title" data-aos="fade-up">#}
+{#        <h2>Frequently Asked Questions</h2>#}
+{#        <p>Magnam dolores commodi suscipit. Necessitatibus eius consequatur ex aliquid fuga eum quidem. Sit sint consectetur velit. Quisquam quos quisquam cupiditate. Et nemo qui impedit suscipit alias ea. Quia fugiat sit in iste officiis commodi quidem hic quas.</p>#}
+{#      </div><!-- End Section Title -->#}
+{##}
+{#      <div class="container">#}
+{##}
+{#        <div class="row justify-content-center">#}
+{##}
+{#          <div class="col-lg-10">#}
+{##}
+{#            <div class="faq-container">#}
+{##}
+{#              <div class="faq-item faq-active" data-aos="fade-up" data-aos-delay="200">#}
+{#                <i class="faq-icon bi bi-question-circle"></i>#}
+{#                <h3>Non consectetur a erat nam at lectus urna duis?</h3>#}
+{#                <div class="faq-content">#}
+{#                  <p>Feugiat pretium nibh ipsum consequat. Tempus iaculis urna id volutpat lacus laoreet non curabitur gravida. Venenatis lectus magna fringilla urna porttitor rhoncus dolor purus non.</p>#}
+{#                </div>#}
+{#                <i class="faq-toggle bi bi-chevron-right"></i>#}
+{#              </div><!-- End Faq item-->#}
+{##}
+{#              <div class="faq-item" data-aos="fade-up" data-aos-delay="300">#}
+{#                <i class="faq-icon bi bi-question-circle"></i>#}
+{#                <h3>Feugiat scelerisque varius morbi enim nunc faucibus a pellentesque?</h3>#}
+{#                <div class="faq-content">#}
+{#                  <p>Dolor sit amet consectetur adipiscing elit pellentesque habitant morbi. Id interdum velit laoreet id donec ultrices. Fringilla phasellus faucibus scelerisque eleifend donec pretium. Est pellentesque elit ullamcorper dignissim. Mauris ultrices eros in cursus turpis massa tincidunt dui.</p>#}
+{#                </div>#}
+{#                <i class="faq-toggle bi bi-chevron-right"></i>#}
+{#              </div><!-- End Faq item-->#}
+{##}
+{#              <div class="faq-item" data-aos="fade-up" data-aos-delay="400">#}
+{#                <i class="faq-icon bi bi-question-circle"></i>#}
+{#                <h3>Dolor sit amet consectetur adipiscing elit pellentesque?</h3>#}
+{#                <div class="faq-content">#}
+{#                  <p>Eleifend mi in nulla posuere sollicitudin aliquam ultrices sagittis orci. Faucibus pulvinar elementum integer enim. Sem nulla pharetra diam sit amet nisl suscipit. Rutrum tellus pellentesque eu tincidunt. Lectus urna duis convallis convallis tellus. Urna molestie at elementum eu facilisis sed odio morbi quis</p>#}
+{#                </div>#}
+{#                <i class="faq-toggle bi bi-chevron-right"></i>#}
+{#              </div><!-- End Faq item-->#}
+{##}
+{#              <div class="faq-item" data-aos="fade-up" data-aos-delay="500">#}
+{#                <i class="faq-icon bi bi-question-circle"></i>#}
+{#                <h3>Ac odio tempor orci dapibus. Aliquam eleifend mi in nulla?</h3>#}
+{#                <div class="faq-content">#}
+{#                  <p>Dolor sit amet consectetur adipiscing elit pellentesque habitant morbi. Id interdum velit laoreet id donec ultrices. Fringilla phasellus faucibus scelerisque eleifend donec pretium. Est pellentesque elit ullamcorper dignissim. Mauris ultrices eros in cursus turpis massa tincidunt dui.</p>#}
+{#                </div>#}
+{#                <i class="faq-toggle bi bi-chevron-right"></i>#}
+{#              </div><!-- End Faq item-->#}
+{##}
+{#              <div class="faq-item" data-aos="fade-up" data-aos-delay="600">#}
+{#                <i class="faq-icon bi bi-question-circle"></i>#}
+{#                <h3>Tempus quam pellentesque nec nam aliquam sem et tortor consequat?</h3>#}
+{#                <div class="faq-content">#}
+{#                  <p>Molestie a iaculis at erat pellentesque adipiscing commodo. Dignissim suspendisse in est ante in. Nunc vel risus commodo viverra maecenas accumsan. Sit amet nisl suscipit adipiscing bibendum est. Purus gravida quis blandit turpis cursus in</p>#}
+{#                </div>#}
+{#                <i class="faq-toggle bi bi-chevron-right"></i>#}
+{#              </div><!-- End Faq item-->#}
+{##}
+{#            </div>#}
+{##}
+{#          </div>#}
+{##}
+{#        </div>#}
+{##}
+{#      </div>#}
+{##}
+{#    </section><!-- /Faq 2 Section -->#}
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact section">
+
+      <!-- Section Title -->
+      <div class="container section-title" data-aos="fade-up">
+        <h2>Связаться с нами</h2>
+        <p>Если у Вас остались вопросы, обратитесь по перечисленным ниже контактам</p>
+      </div><!-- End Section Title -->
+
+      <div class="container" data-aos="fade-up" data-aos-delay="100">
+
+        <div class="row gy-4">
+
+          <div class="col-lg-5">
+
+            <div class="info-wrap">
+              <div class="info-item d-flex" data-aos="fade-up" data-aos-delay="200">
+                <i class="bi bi-geo-alt flex-shrink-0"></i>
+                <div>
+                  <h3>Адрес</h3>
+                  <p>{{ address.geo }}, {{ address.location }} ({{ contacts.inn }})</p>
+                </div>
+              </div><!-- End Info Item -->
+
+              <div class="info-item d-flex" data-aos="fade-up" data-aos-delay="300">
+                <i class="bi bi-telegram flex-shrink-0"></i>
+                <div>
+                  <h3>Telegram</h3>
+                  <a href="{{ contacts.telegram_link }}" target="_blank">{{ contacts.telegram}}</a>
+                </div>
+              </div><!-- End Info Item -->
+
+              <div class="info-item d-flex" data-aos="fade-up" data-aos-delay="400">
+                <i class="bi bi-whatsapp flex-shrink-0"></i>
+                <div>
+                  <h3>WhatsApp</h3>
+                  <a href="{{ contacts.whatsapp_link }}" target="_blank">{{ contacts.whatsapp}}</a>
+                </div>
+              </div><!-- End Info Item -->
+
+              <div class="info-item d-flex" data-aos="fade-up" data-aos-delay="400">
+                <i class="bi bi-envelope-at flex-shrink-0"></i>
+                <div>
+                  <h3>Email</h3>
+                  <a href="{{ contacts.email_link }}" target="_blank">{{ contacts.email}}</a>
+                </div>
+              </div><!-- End Info Item -->
+
+              <iframe src="https://yandex.ru/map-widget/v1/?um=constructor%3A749dbe3e7987d5dcd132754ee17658e96d0f8b7d12e7f6cdc737c5d4c272de5e&amp;source=constructor" width="100%" height="397" frameborder="0"></iframe>
+            </div>
+          </div>
+
+          <div class="col-lg-7">
+            <contact-form></contact-form>
+          </div><!-- End Contact Form -->
+
+        </div>
+
+      </div>
+
+    </section><!-- /Contact Section -->
+
+  </main>
+
+  <footer id="footer" class="footer">
+    <!--
+    <div class="footer-newsletter">
+      <div class="container">
+        <div class="row justify-content-center text-center">
+          <div class="col-lg-6">
+            <h4>Join Our Newsletter</h4>
+            <p>Subscribe to our newsletter and receive the latest news about our products and services!</p>
+            <form action="forms/newsletter.php" method="post" class="php-email-form">
+              <div class="newsletter-form"><input type="email" name="email"><input type="submit" value="Subscribe"></div>
+              <div class="loading">Loading</div>
+              <div class="error-message"></div>
+              <div class="sent-message">Your subscription request has been sent. Thank you!</div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    -->
+
+    <div class="container footer-top">
+      <div class="row gy-4">
+        <div class="col-lg-4 col-md-6 footer-about">
+          <a href="index.html" class="d-flex align-items-center">
+            <span class="sitename">{{ logo.caption }}</span>
+          </a>
+          <div class="footer-contact pt-3">
+            <p>{{ contacts.inn }}</p>
+            <p>{{ address.location }}</p>
+            <p>{{ address.geo }}</p>
+            <!--
+            <p class="mt-3"><strong>Phone:</strong> <span>{{ contacts.phone }}</span></p>
+            -->
+            <p><strong>Email:</strong> <span>{{ contacts.email }}</span></p>
+          </div>
+        </div>
+
+        <div class="col-lg-2 col-md-3 footer-links">
+          <h4>Навигация</h4>
+          <ul>
+            {% for item in nav %}
+                {% if item.required is not False %}
+                    <li><a href="#{{ item.section }}" class="active">{{ item.label }}</a></li>
+                {% endif %}
+            {% endfor %}
+          </ul>
+        </div>
+
+        <div class="col-lg-2 col-md-3 footer-links">
+          <h4>Платежные решения</h4>
+          <ul>
+            {% for item in payments %}
+                <li><div class="icon"><i class="bi bi-{{ item.icon }} icon"></i></div><a href="#payments" class="active">{{ item.label }}</a></li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        <!--
+        <div class="col-lg-4 col-md-12">
+          <h4>Follow Us</h4>
+          <p>Cras fermentum odio eu feugiat lide par naso tierra videa magna derita valies</p>
+          <div class="social-links d-flex">
+            <a href=""><i class="bi bi-twitter-x"></i></a>
+            <a href=""><i class="bi bi-facebook"></i></a>
+            <a href=""><i class="bi bi-instagram"></i></a>
+            <a href=""><i class="bi bi-linkedin"></i></a>
+          </div>
+        </div>
+        -->
+      </div>
+    </div>
+
+    <div class="container copyright text-center mt-4">
+      <p>© <span>Copyright</span> <strong class="px-1 sitename">RuSwift</strong> <span>Все права защищены</span></p>
+      <div class="credits">
+
+      </div>
+    </div>
+
+  </footer>
+
+  <!-- Scroll Top -->
+  <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+  <!-- Preloader -->
+  <div id="preloader"></div>
+
+  <!-- Vendor JS Files -->
+  <script src="/static/landing/payolin/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="/static/landing/payolin/assets/vendor/php-email-form/validate.js"></script>
+  <script src="/static/landing/payolin/assets/vendor/aos/aos.js"></script>
+  <script src="/static/landing/payolin/assets/vendor/glightbox/js/glightbox.min.js"></script>
+  <script src="/static/landing/payolin/assets/vendor/swiper/swiper-bundle.min.js"></script>
+  <script src="/static/landing/payolin/assets/vendor/waypoints/noframework.waypoints.js"></script>
+  <script src="/static/landing/payolin/assets/vendor/imagesloaded/imagesloaded.pkgd.min.js"></script>
+  <script src="/static/landing/payolin/assets/vendor/isotope-layout/isotope.pkgd.min.js"></script>
+
+  <!-- Main JS File -->
+  <script src="/static/landing/payolin/assets/js/main.js"></script>
+
+  <script>
+      Vue.component("modal", {
+        template: "#modal-template"
+      });
+
+      Vue.component("contact-form", {
+          template: "#contact-form-template",
+          delimiters: ['[[', ']]'],
+          props: {
+              name: {
+                type: String,
+                default: ""
+              },
+              contact: {
+                type: String,
+                default: ""
+              },
+              subject: {
+                 type: String,
+                 default: ""
+              },
+              message: {
+                 type: String,
+                 default: ""
+              }
+          },
+          data() {
+              return {
+                  loading: false,
+                  error_msg: null,
+                  success_msg: null,
+                  edited_name: null,
+                  edited_contact: null,
+                  edited_subject: null,
+                  edited_message: null
+              }
+          },
+          mounted () {
+              this.edited_name = this.name;
+              this.edited_contact = this.contact;
+              this.edited_subject = this.subject;
+              this.edited_message = this.message;
+          },
+          methods: {
+              submit(){
+                  const inputs = [
+                      this.$refs.message_field,
+                      this.$refs.contact_field,
+                      this.$refs.name_field
+                  ];
+                  let success = true;
+                  inputs.forEach(function (el) {
+                      if (! el.checkValidity()) {
+                          el.reportValidity();
+                          success = false;
+                      }
+                  });
+                  if (success) {
+                      const data = {
+                          name: this.$refs.name_field.value,
+                          contact: this.$refs.contact_field.value,
+                          message: this.$refs.message_field.value,
+                          subject: this.$refs.subject_field.value,
+                          token: '{{ token }}'
+                      }
+                      const payload = JSON.stringify(data);
+                      const config = {
+                          headers: {
+                              'Content-Type': 'application/json',
+                          }
+                      }
+                      const self = this;
+                      self.loading = true;
+                      self.error_msg = null;
+                      self.success_msg = null;
+                      axios
+                       .post('/', payload, config)
+                       .then(
+                           (response) => {
+                               self.success_msg = 'Ваш запрос успешно отправлен, скоро мы свяжемся с Вами'
+                               console.log(response)
+                               //this.info = response
+                           }
+                       )
+                       .catch(
+                            (e) => {
+                               console.log(e.response.status);
+                               if (e.response.status === 429) {
+                                   self.error_msg = 'Слишком много запросов, попробуйте позже';
+                               }
+                               else if (e.response.status === 400) {
+                                   self.error_msg = e.response.data
+                               }
+                               else {
+                                   self.error_msg = 'Ошибка на стороне сервера, попробуйте обратиться по указанным контактам';
+                               }
+                            }
+                       ).finally(
+                          (response) => {
+                              self.loading = false;
+                              console.log(response);
+                          }
+                       )
+
+                  }
+              }
+          }
+      });
+
+      Vue.component("calculator", {
+        delimiters: ['[[', ']]'],
+        props: {
+            payment_method: {
+                type: String,
+                default: "{{ payments.0.id }}"
+            },
+            payment_methods: {
+                type: Array,
+                default: function () {
+                    return [
+                        {% for method in payments %}
+                            {id: "{{ method.id }}", label: "{{ method.label }}"},
+                        {% endfor %}
+                    ]
+                }
+            },
+            currencies: {
+                type: Array,
+                default: function(){
+                    return [
+                        {'code': 'CNY', 'label': 'CNY'},
+                        {'code': 'USD', 'label': 'USD'},
+                       // {'code': 'EUR', 'label': 'EUR'},
+                    ]
+                }
+            },
+            alternatives: {
+                type: Array,
+                default: function(){
+                    return [
+                        {% for method in rates.alternative %}
+                            {'id': '{{ method.id }}', 'label': '{{ method.label }}', 'value': {{ method.value }}},
+                        {% endfor %}
+                    ]
+                }
+            }
+        },
+        data() {
+            return {
+                ratios: null,
+                rates: null,
+                banks: {},
+                current_cur: null,
+                current_alter_method: null,
+                show_currencies_dropdown: false,
+                show_alter_dropdown: false,
+                amount: null,
+                show_cur_algorythm: false,
+                current_payment_method: null,
+                _cached_current_cur: null,
+            }
+        },
+        mounted () {
+            this.ratios = JSON.parse(document.getElementById('ratios-data').textContent);
+            //console.log(this.ratios);
+
+            this.rates = JSON.parse(document.getElementById('rates-data').textContent);
+            this.current_cur = this.currencies[0];
+            this.current_alter_method = this.alternatives[0];
+            this.banks = JSON.parse(document.getElementById('banks-data').textContent);
+            //console.log(this.banks)
+            this.current_payment_method = this.payment_methods[0].id;
+        },
+        watch: {
+            payment_method: function(newVal, oldVal) { // watch it
+              //console.log('Prop changed: ', newVal, ' | was: ', oldVal);
+              if (oldVal === 'bank') {
+                  this._cached_current_cur = this.current_cur;
+              }
+              if (newVal === 'alter') {
+                  for (let i=0; i<this.currencies.length; i++) {
+                      const cur = this.currencies[i];
+                      if (cur.code === 'CNY') {
+                          this.current_cur = cur;
+                          break;
+                      }
+                  }
+              }
+              if (newVal === 'bank') {
+                  if (this._cached_current_cur) {
+                      this.current_cur = this._cached_current_cur;
+                  }
+              }
+            }
+        },
+        computed: {
+            rate_cur_usdt_forex(){
+                if (this.current_cur.code === 'USD') {
+                    return 1.0
+                }
+                if (this.rates && this.ratios) {
+                    const ratio = this.get_ratio(this.current_cur.code, 'USDT', 'forex');
+                    return ratio.rate
+                }
+                else {
+                    return null;
+                }
+            },
+            rate_cur_usdt_alter(){
+                if (this.rates) {
+                    for (let i = 0; i < this.rates.alternative.length; i++) {
+                        const item = this.rates.alternative[i];
+                        if (item.id === this.current_alter_method.id) {
+                            return parseFloat(item.value);
+                        }
+                    }
+                }
+                return null;
+            },
+
+            final_cur_rub(){
+                if (this.rate_cur_usdt_forex) {
+                    if (this.payment_method === 'bank') {
+                        return this.rate_cur_usdt_forex * this.rates.usdtrub.default * (1 + this.rates.usdtswift_comission.default/100);
+                    }
+                    else if (this.payment_method === 'alter') {
+                        return this.rates.usdtrub.default / this.rate_cur_usdt_alter;
+                    }
+                    else {
+                        return null
+                    }
+                }
+                else {
+                    return null;
+                }
+            },
+
+            rub_amount(){
+                const value = this.amount ? (this.final_cur_rub * this.amount) : 0.0;
+                return Math.round(value * 100) / 100
+            },
+            rub_comission(){
+                const value = this.rub_amount * this.rates.comission.default/100;
+                return Math.round(value * 100) / 100
+            },
+            // Investing
+            investing_ratio(){
+                if (this.current_cur) {
+                    let ratio = this.get_ratio(this.current_cur.code, 'RUB', 'forex');
+                    if (ratio) {
+                        return ratio.rate;
+                    } else {
+                        return null;
+                    }
+                }
+                else {
+                    return null;
+                }
+            },
+            investing_link(){
+                const code = this.current_cur.code.toLowerCase();
+                return 'https://ru.investing.com/currencies/' + code + '-rub';
+            },
+            // BestChange
+            bestchange_ratio(){
+                if (this.current_cur) {
+                    let methods = null;
+                    if (this.payment_method === 'bank') {
+                        methods = ['WIRERUB'];
+                        if (this.current_cur) {
+                            if (this.current_cur.code === 'CNY') {
+                                methods.push('WIRECNY');
+                            }
+                            if (this.current_cur.code === 'USD') {
+                                methods.push('WIREUSD');
+                            }
+                            if (this.current_cur.code === 'EUR') {
+                                methods.push('WIREEUR');
+                            }
+                        }
+                    }
+                    else if (this.payment_method === 'alter') {
+                        methods = ['SBERRUB']; // в нем больше ликвидности
+                        if (this.current_alter_method) {
+                            if (this.current_alter_method.id === 'alipay') {
+                                methods.push('ALPCNY');
+                            }
+                            if (this.current_alter_method.id === 'wechat') {
+                                methods.push('WCTCNY');
+                            }
+                            if (this.current_alter_method.id === 'card') {
+                                methods.push('UPCNY');
+                            }
+                        }
+                    }
+                    let ratio = this.get_ratio(this.current_cur.code, 'RUB', 'bestchange', methods);
+                    if (ratio) {
+                        return ratio.rate;
+                    } else {
+                        return null;
+                    }
+                }
+                else {
+                    return null;
+                }
+            },
+            bestchange_link(){
+                if (this.current_cur) {
+                    const code = this.current_cur.code.toLowerCase();
+                    if (this.payment_method === 'bank') {
+                        return 'https://www.bestchange.com/wire-rub-to-wire-' + code + '.html';
+                    }
+                    else if (this.payment_method === 'alter') {
+                        if (this.current_alter_method.id === 'alipay') {
+                            return 'https://www.bestchange.com/sberbank-to-alipay' + '.html';
+                        }
+                        if (this.current_alter_method.id === 'wechat') {
+                            return 'https://www.bestchange.com/sberbank-to-wechat' + '.html';
+                        }
+                        if (this.current_alter_method.id === 'card') {
+                            return 'https://www.bestchange.com/sberbank-to-unionpay' + '.html';
+                        }
+                    }
+                }
+                else {
+                    return null;
+                }
+            },
+            // Bankiros
+            banks_ratio(){
+                if (this.current_cur) {
+                    const code = this.current_cur.code.toUpperCase();
+                    let meta = this.banks[code];
+                    if (meta) {
+                        return meta.rate;
+                    } else {
+                        return null;
+                    }
+                }
+                return null;
+            },
+            banks_link(){
+                if (this.current_cur) {
+                    const code = this.current_cur.code.toUpperCase();
+                    let meta = this.banks[code];
+                    if (meta) {
+                        return meta.url;
+                    } else {
+                        return null;
+                    }
+                }
+                else {
+                    return null;
+                }
+            }
+        },
+        methods: {
+            select_currency(meta){
+                this.current_cur = meta;
+                this.show_currencies_dropdown = false;
+            },
+            select_alternative_method(meth) {
+                this.current_alter_method = meth;
+                this.show_alter_dropdown = false;
+            },
+            get_ratio(get, give, scope, methods=null) {
+                if (this.ratios) {
+                    for (let i = 0; i < this.ratios.length; i++) {
+                        let ratio = this.ratios[i];
+                        if (ratio.get.symbol === get && ratio.give.symbol === give && ratio.scope === scope) {
+                            if (methods) {
+                                let methods_seq = [];
+                                if (typeof(methods) === 'string'){
+                                    methods_seq.push(methods)
+                                }
+                                else {
+                                    for (k in methods) {
+                                        methods_seq.push(methods[k]);
+                                    }
+                                }
+
+                                let flag = true;
+                                for (k in methods_seq) {
+                                    const value = methods_seq[k].toLowerCase();
+                                    if (ratio.get.method.toLowerCase() !== value && ratio.give.method.toLowerCase() !== value){
+                                        flag = false;
+                                        break;
+                                    }
+                                }
+                                if (flag) {
+                                    return ratio;
+                                }
+                            }
+                            else {
+                                return ratio;
+                            }
+                        }
+                    }
+                }
+                return null;
+            },
+            toggle_show_algo(){
+                this.show_cur_algorythm = !this.show_cur_algorythm;
+            }
+        },
+        template: "#calculator-template"
+      });
+
+
+      const app = new Vue({
+          el: '#app',
+          delimiters: ['[[', ']]'],
+          data: {
+              showModal: false,
+              selected_payment_method: "{{ payments.0.id }}",
+              modal: {
+                 cur_schema: 0,
+                 body: {
+                     schemas: [
+                         {
+                             id: 'bank',
+                             title: '{{ payments.0.label }}',
+                             steps: [
+                                 'Подписывается договор платежного Агента',
+                                 'Клиент оплачивает: тело платежа в рублевом эквиваленте и агентское вознаграждение отдельным счетом',
+                                 'Осуществляется оплата Поставщику в соответствии с выставленным Поставщиком счетом',
+                                 'Агент предоставляет копию Swift об отправке платежа Клиенту, отчет агента и акт на комиссию.',
+                             ]
+                         },
+                         {
+                             id: 'alter',
+                             title: '{{ payments.1.label }}',
+                             steps: [
+                                 'Подписывается договор платежного Агента',
+                                 'Клиент оплачивает: тело платежа в рублевом эквиваленте и агентское вознаграждение отдельным счетом',
+                                 'Осуществляется оплата Поставщику на AliPay/WeChat/Карту',
+                                 'Агент предоставляет отчет о зачислении суммы Поставщику и акт на комиссию.',
+                             ]
+                         },
+                         {
+                             id: 'nonstandard',
+                             title: '{{ payments.2.label }}',
+                             steps: []
+                         }
+                     ]
+                 }
+              }
+          },
+          methods: {
+              show_details(payment_method){
+                  this.selected_payment_method = payment_method;
+                  if (payment_method === 'bank') {
+                      this.modal.cur_schema = 0;
+                  }
+                  else if (payment_method === 'alter') {
+                      this.modal.cur_schema = 1;
+                  }
+                  else if (payment_method === 'nonstandard') {
+                      this.modal.cur_schema = 2;
+                  }
+                  this.showModal = true;
+              },
+              select_payment_method(id){
+                  this.selected_payment_method = id;
+
+              },
+              navigate_to_calculator(){
+                  window.location = '#pricing';
+                  this.showModal = false;
+              },
+              navigate_to_contact_form(){
+                  window.location = '#contact';
+                  this.showModal = false;
+              }
+          }
+      });
+
+      $(function(){
+          let chain$ = $('.faq-item');
+          $.each(chain$, function(index ){
+            let title = $(this).children()[0];
+            const parent = this;
+            $(title).click(function (){
+                {#$(parent).toggle('faq-active').show();#}
+                {#console.log(parent)#}
+            });
+          });
+      });
+  </script>
+
+</body>
+
+</html>

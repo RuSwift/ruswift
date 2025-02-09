@@ -1,0 +1,34 @@
+uid: 'root-example'
+icon: null
+first_name: 'Root'
+last_name: 'Simonov'
+phone: '+7-911-345-65-44'
+email: 'me@server.com'
+telegram: '@root'
+is_active: true
+permissions: ['root']
+is_verified: true
+is_organization: false
+merchant_meta:
+  title: 'TEST'
+  base_currency: 'RUB'
+  url: 'http://test.localhost'
+  # Decentralized
+  identity:
+    did:
+      root: 'did:web:ruswift.ru:root'
+  paths:
+    admin: '/admin-root'
+  auth:
+    - class: 'TokenAuth'
+      settings:
+        token: 'root'
+  mass_payments:
+    enabled: true
+    asset:
+      code: 'USDTTRC20'
+      address: 'TVFysSZPcid6KiDUEs1byFcjwPqsQqaXxx'
+    ratios:
+      engine: 'GarantexEngine'
+      base: 'RUB'
+      quote: 'USDT'

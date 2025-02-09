@@ -16,7 +16,8 @@
             "program": "${workspaceFolder}/app/manage.py",
             "env": {
                 "SETTINGS": "/workspaces/ruswift/.devcontainer/cfg.yml"
-            }
+            },
+            "cwd": "/workspaces/ruswift/app",
         },
         {
             "name": "Debug script",

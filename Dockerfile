@@ -11,6 +11,7 @@ ENV DATABASE_CONN_MAX_AGE 0
 
 # Copy project files and install dependencies
 ADD app /app
+ADD lib /app/lib
 WORKDIR /app
 
 RUN pip install -U pip poetry==1.8.5

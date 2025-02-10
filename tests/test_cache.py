@@ -4,7 +4,7 @@ import asyncio
 import pytest
 from aioredis import ConnectionPool as RedisConnectionPool
 
-from exchange.cache import Cache
+from cache import Cache
 
 
 @pytest.mark.asyncio

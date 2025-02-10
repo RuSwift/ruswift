@@ -8,10 +8,10 @@ from pydantic_yaml import parse_yaml_file_as
 from django.test import LiveServerTestCase, override_settings
 from django.urls import reverse
 
-from exchange.api.auth import BaseAuth, TokenAuth
-from exchange.ui.landing import LandingPayolinView
-from exchange.entities import ExchangeConfig, MerchantMeta, Credential
-from exchange.merchants import update_merchants_config
+from api.auth import BaseAuth, TokenAuth
+from ui.landing import LandingPayolinView
+from entities import ExchangeConfig, MerchantMeta, Credential
+from merchants import update_merchants_config
 
 
 class AnyCfg(BaseModel, extra=Extra.allow):

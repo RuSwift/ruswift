@@ -15,7 +15,8 @@
             "autoStartBrowser": false,
             "program": "${workspaceFolder}/app/manage.py",
             "env": {
-                "SETTINGS": "/workspaces/ruswift/.devcontainer/cfg.yml"
+                "SETTINGS": "/workspaces/ruswift/.devcontainer/cfg.yml",
+                "DJANGO_SETTINGS_MODULE": "settings.local"
             },
             "cwd": "/workspaces/ruswift/app",
         },

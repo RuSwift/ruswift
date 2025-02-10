@@ -3152,7 +3152,7 @@ Vue.component(
                             <div class="form-group row">
                                 <label for="symbol" class="col-sm-2 col-form-label col-form-label-sm text-secondary">Symbol</label>
                                 <div class="col-sm-4">
-                                  <input v-model="edit_model.symbol" type="text" class="form-control form-control-sm" id="symbol" placeholder="symbol">
+                                  <input v-bind:disabled="edit_model.payments_count > 0" v-model="edit_model.symbol" type="text" class="form-control form-control-sm" id="symbol" placeholder="symbol">
                                 </div>
                             </div>
                             <div class="form-group row">
@@ -3234,7 +3234,7 @@ Vue.component(
             </modal-window>
                 
                 
-            <div v-if="error_msg" class="alert alert-danger">
+            <div v-if="error_msg" class="alert alert-danger text-center">
                 <p>[[ error_msg ]]</p>
             </div>
             <div class="card text-left">
@@ -3270,6 +3270,99 @@ Vue.component(
                         v-if="loading"
                         style="position:absolute;top:10%;left:0;"
                     ></loader-circle>
+                </div>
+            </div>
+        </div>
+        `
+    }
+);
+
+Vue.component(
+    'AdminMethods',
+    {
+        delimiters: ['[[', ']]'],
+        data(){
+            return {
+                error_msg: null,
+                costs: [
+                    {
+                        id: 'bitok_cost_per_check',
+                        cost: 0.7,
+                        is_percents: false,
+                        cur: 'USD'
+                    },
+                    {
+                        id: 'tron_cost_per_txn',
+                        cost: 1.5,
+                        is_percents: false,
+                        cur: 'USD'
+                    },
+                    {
+                        id: 'sber_cost_per_txn',
+                        cost: 0.5,
+                        is_percents: true,
+                        cur: 'RUB'
+                    },
+                    {
+                        id: 'btc_cost_per_txn',
+                        cost: 10,
+                        is_percents: true,
+                        cur: 'USD'
+                    }
+                ]
+            }
+        },
+        methods: {
+            refresh(){
+
+            },
+        },
+        template: `
+        <div class="w-100">
+            <div v-if="error_msg" class="alert alert-danger text-center">
+                <p>[[ error_msg ]]</p>
+            </div>
+
+            <div class="card text-left">
+                <div class="card-header">
+                    <button 
+                        @click.prevent="refresh()" 
+                        class="btn btn-primary btn-sm" 
+                        title="Обновить"
+                        style="float:left;margin-right:3px;"
+                    >
+                        <i class="fa-solid fa-rotate"></i>
+                    </button>
+                    <h5 style="text-align: left;">Редактор методов оплаты</h5>
+                </div>
+                <div class="card-body" style="text-align:left;">
+                    <div class="w-100 text-left">
+                        <table class="text-left">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th class="text-primary text-center">Cost</th>
+                                    <th class="text-primary text-center">%</th>\
+                                    <th class="text-primary text-center">Валюта</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="cost in costs">
+                                    <td style="padding-right: 10px;">[[ cost.id ]]</td>
+                                    <td class="text-primary" style="padding-right: 10px;">[[ cost.cost ]]</td>
+                                    <td :class="{'text-success': cost.is_percents, 'text-secondary': !cost.is_percents}" style="padding-right: 10px;">[[ cost.is_percents ]]</td>
+                                    <td style="padding-right: 10px;">[[ cost.cur ]]</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                    </div>
+
+                    <data-table
+                        ref="table"
+                        style="text-align: left;"
+                        :searchable="false"
+                    ></data-table>
                 </div>
             </div>
         </div>

@@ -1895,10 +1895,14 @@ Vue.component(
                 },
                 loading: false,
                 kyc_required: true,
-                kyc_check_timer: null
+                kyc_check_timer: null,
+                compact_view: false
             }
         },
         mounted () {
+            if (screen.height > screen.width) {
+                this.compact_view = true;
+            }
             this.cur_stage_index = this.stages[0].index;
             this.stages[0].passed = true;
             this.reload();
@@ -2268,9 +2272,9 @@ Vue.component(
                     </div>
                 </div>
                 <div  v-if="identity_id" class="row" style="margin-top:5%;margin-bottom:5%;" >
-                    <div class="col"></div>
+                    <div v-if="!compact_view" class="col"></div>
                     <!--   Center    -->
-                    <div class="col-6">
+                    <div :class="{'col-6': !compact_view}">
                         <form 
                             ref="form" 
                             class="border border-2 rounded border-primary border-opacity-10" 
@@ -2434,7 +2438,7 @@ Vue.component(
                             </div>
                         </form>
                     </div>
-                    <div class="col"></div>
+                    <div v-if="!compact_view" class="col"></div>
                 </div>
                 <!-- Footer -->
                 <p class="text-danger p-1">[[ errors.default ]]</p>

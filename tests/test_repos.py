@@ -6,16 +6,16 @@ import pytest
 from django.conf import settings
 from django.db import IntegrityError
 
-from exchange.cache import Cache
-from exchange.core import utc_now_float
+from cache import Cache
+from core import utc_now_float
 from exchange.models import (
     Currency as DBCurrency, KYCPhoto as DBKYCPhoto
 )
-from exchange.entities import (
+from entities import (
     Currency, Account, DocumentPhoto, SelfiePhoto, Session,
     StorageItem, AccountKYC, VerifiedDocument
 )
-from exchange.reposiroty import (
+from reposiroty import (
     BaseEntityRepository, ExchangeConfigRepository,
     CorrectionRepository, PaymentRepository, KYCPhotoRepository,
     AccountRepository, AccountSessionRepository, AccountCredentialRepository,

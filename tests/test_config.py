@@ -1,12 +1,12 @@
 import pytest
 
-from exchange.ratios import (
+from ratios import (
     ForexEngine, HTXEngine, CoinMarketCapEngine,
     GarantexEngine, GarantexP2P
 )
-from exchange.context import Context
-from exchange.entities import ExchangeConfig, Account
-from exchange.entities import BestChangeMethodMapping, BestChangeCodeRule
+from context import Context
+from entities import ExchangeConfig, Account
+from entities import BestChangeMethodMapping, BestChangeCodeRule
 
 
 @pytest.mark.asyncio

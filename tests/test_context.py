@@ -1,7 +1,7 @@
 import pytest
 
-from exchange.context import context, Context
-from exchange.entities import ExchangeConfig, Account
+from context import context, Context
+from entities import ExchangeConfig, Account
 
 
 @pytest.mark.asyncio

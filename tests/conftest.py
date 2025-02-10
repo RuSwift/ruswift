@@ -5,7 +5,7 @@ import pytest
 from pydantic import BaseModel, Extra
 from pydantic_yaml import parse_yaml_file_as
 
-from exchange.entities import ExchangeConfig, Account
+from entities import ExchangeConfig, Account
 
 
 class AnyCfg(BaseModel, extra=Extra.allow):

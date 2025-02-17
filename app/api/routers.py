@@ -6,7 +6,9 @@ from .account import (
 from .ratios import EngineRateController, XMLEngineRateController
 from .storage import StorageController
 from .ledgers import LedgerController
-from .directions import DirectionController, CurrenciesController
+from .directions import (
+    DirectionController, CurrenciesController, MethodsController, MethodCostController
+)
 from .mass_payment import (
     MassPaymentController, ControlPanelMassPaymentController
 )
@@ -36,4 +38,6 @@ api_router.append(rates_router)
 exchange_router = ExchangeHttpRouter('exchange')
 exchange_router.register('directions', DirectionController)
 exchange_router.register('currencies', CurrenciesController)
+exchange_router.register('costs', MethodCostController)
+exchange_router.register('methods', MethodsController)
 api_router.append(exchange_router)

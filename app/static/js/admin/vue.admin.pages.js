@@ -3284,38 +3284,73 @@ Vue.component(
         data(){
             return {
                 error_msg: null,
-                costs: [
-                    {
-                        id: 'bitok_cost_per_check',
-                        cost: 0.7,
-                        is_percents: false,
-                        cur: 'USD'
-                    },
-                    {
-                        id: 'tron_cost_per_txn',
-                        cost: 1.5,
-                        is_percents: false,
-                        cur: 'USD'
-                    },
-                    {
-                        id: 'sber_cost_per_txn',
-                        cost: 0.5,
-                        is_percents: true,
-                        cur: 'RUB'
-                    },
-                    {
-                        id: 'btc_cost_per_txn',
-                        cost: 10,
-                        is_percents: true,
-                        cur: 'USD'
-                    }
-                ]
+                loading_costs: false,
+                costs: []
             }
         },
+        mounted(){
+            this.refresh();
+        },
         methods: {
-            refresh(){
-
+            refresh(target = 'all'){
+                load_costs = target === 'costs' || target === 'all';
+                load_methods = target === 'methods' || target === 'all';
+                const self = this;
+                if (load_costs) {
+                    self.loading_costs = true;
+                    axios
+                        .get('/api/exchange/costs')
+                        .then(
+                            (response) => {
+                                console.log(response.data);
+                                let new_costs = [];
+                                for (let i=0; i<response.data.length; i++) {
+                                    let c = response.data[i];
+                                    c.editing = false;
+                                    new_costs.push(c);
+                                }
+                                self.costs = new_costs;
+                            }
+                        ).finally(
+                            response => (
+                                self.loading_costs = false
+                            )
+                        )
+                }
             },
+            cancel_cost_item(cost) {
+                dump = cost._dump;
+                if (dump) {
+                    cost.cost = dump.cost;
+                    cost.cur = dump.cur;
+                    cost.is_percents = dump.is_percents;
+                    cost._dump = null;
+                }
+                cost.editing = false;
+            },
+            edit_cost_item(cost, flag){
+                if (cost.editing === flag) {
+                    return;
+                }
+                cost.editing = flag;
+                if (flag) {
+                    cost._dump = {
+                        cost: cost.cost,
+                        cur: cost.cur,
+                        is_percents: cost.is_percents
+                    }
+                    for (let i=0; i<this.costs.length; i++) {
+                        let c = this.costs[i];
+                        if (c.id !== cost.id) {
+                            this.cancel_cost_item(c);
+                        }
+                    }
+                }
+                else {
+                    cost._dump = null;
+                }
+                
+            }
         },
         template: `
         <div class="w-100">
@@ -3337,25 +3372,54 @@ Vue.component(
                 </div>
                 <div class="card-body" style="text-align:left;">
                     <div class="w-100 text-left">
-                        <table class="text-left">
+                        <loader-circle v-if="loading_costs"></loader-circle>
+                        <table v-if="!loading_costs" class="text-left table-responsive">
                             <thead class="bg-light">
                                 <tr>
                                     <th>ID</th>
                                     <th class="text-primary text-center">Cost</th>
                                     <th class="text-primary text-center">%</th>\
                                     <th class="text-primary text-center">Валюта</th>
+                                    <th class="text-primary text-center"></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr v-for="cost in costs">
-                                    <td style="padding-right: 10px;">[[ cost.id ]]</td>
-                                    <td class="text-primary" style="padding-right: 10px;">[[ cost.cost ]]</td>
-                                    <td :class="{'text-success': cost.is_percents, 'text-secondary': !cost.is_percents}" style="padding-right: 10px;">[[ cost.is_percents ]]</td>
-                                    <td style="padding-right: 10px;">[[ cost.cur ]]</td>
+                                    <td class="fw-bold" style="padding-right: 10px;">
+                                        [[ cost.id ]]
+                                    </td>
+                                    <td class="text-primary" style="padding-right: 10px;">
+                                        <span v-if="!cost.editing">[[ cost.cost ]]</span>
+                                        <input v-if="cost.editing" type="numeric" v-model="cost.cost" style="width: 50px;" class="form-control form-control-sm"/>
+                                    </td>
+                                    <td :class="{'text-success': cost.is_percents, 'text-secondary': !cost.is_percents}" style="padding-right: 10px;">
+                                        <span v-if="!cost.editing">[[ cost.is_percents ]]</span>
+                                        <input v-if="cost.editing" type="checkbox" v-model="cost.is_percents" class="form-check-input"/>
+                                    </td>
+                                    <td style="padding-right: 10px;">
+                                        <span v-if="!cost.editing">[[ cost.cur ]]</span>
+                                        <input v-if="cost.editing" type="text" v-model="cost.cur" style="width: 50px;" class="form-control form-control-sm"/>
+                                    </td>
+                                    <td>
+                                        
+                                        <button v-if="!cost.editing" @click.prevent="edit_cost_item(cost, true)" class="btn btn-sm btn-secondary">edit</button>
+                                        <button v-if="cost.editing" @click.prevent="cancel_cost_item(cost)" class="btn btn-sm btn-warning">cancel</button>
+                                        <button v-if="cost.editing" @click.prevent="edit_cost_item(cost, false)" class="btn btn-sm btn-success">ok</button>
+                                        <button v-if="!cost.editing" class="btn btn-sm btn-danger" title="delete">x</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td>
+                                        <div class="w-100 text-center">
+                                            <button class="btn btn-sm btn-success">+</button>
+                                        </div>
+                                    </td>
+                                    <td></td>
                                 </tr>
                             </tbody>
+                            
                         </table>
-                        
                     </div>
 
                     <data-table

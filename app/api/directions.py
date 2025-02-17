@@ -1,5 +1,5 @@
 import logging
-from typing import Any, List, Optional, Dict, Union
+from typing import Any, List, Optional, Dict, Union, Literal
 from collections import defaultdict
 
 import pydantic
@@ -289,8 +289,8 @@ class CurrencyResource(BaseResource):
         id: int
         owner_did: str
         payments_count: int = 0
-
-
+        
+        
 class CurrenciesController(
     AuthControllerMixin, OwnerIdMixin,
     MixinUpdateOne, MixinDeleteOne, MixinCreateOne,
@@ -406,3 +406,116 @@ class CurrenciesController(
             if cur.id != pk:
                 return False
         return True
+
+
+
+class MethodLimits(BaseModel):
+    minimum: Optional[float] = None
+    maximum: Optional[float] = None
+    cur: str
+    
+
+class MethodCostResource(BaseResource):
+    
+    pk = 'id'
+    
+    class Create(BaseResource.Create):
+        id: str
+        cost: float
+        is_percents: bool
+        cur: str
+        limits: Optional[MethodLimits] = None
+    
+    class Update(Create):
+        ...
+        
+    class Retrieve(Update):
+        ...
+    
+
+    
+class MethodCostController(
+    AuthControllerMixin, OwnerIdMixin,
+    MixinUpdateOne, MixinDeleteOne, MixinCreateOne,
+    BaseExchangeController
+):
+    Resource = MethodCostResource
+    
+    async def get_one(self, pk: Any, **filters) -> Optional[Resource.Retrieve]:
+        resp = await self.get_many(id=pk)
+        resp = [i for i in resp if i.id == pk]
+        return resp[0] if resp else None
+
+    async def get_many(
+        self, order_by: Any = 'id', limit: int = None,
+        offset: int = None, **filters
+    ) -> List[Resource.Retrieve]:
+        result = []
+        for _id, c in self.context.config.costs.items():
+            result.append(
+                self.Resource.Retrieve.model_validate(
+                    {**c.model_dump(), **{'id': _id}}
+                )
+            ) 
+        return result
+        
+        
+class Costs(BaseModel):
+    income: List[str] = pydantic.Field(default_factory=list)
+    outcome: List[str] = pydantic.Field(default_factory=list)
+    
+        
+class MethodResource(BaseResource):
+    
+    pk = 'code'
+    
+    class Create(BaseResource.Create):
+        code: str  # ex: USDTTRC20
+        method: str  # ex: tron
+        cur: str  # ex: 'USDT'
+        icon: Optional[str] = None
+        sub: Optional[Literal['fiat', 'digital', 'wire', 'cash', 'crypto']] = 'crypto'
+        costs: Costs = pydantic.Field(default_factory=Costs)
+        name: Optional[str] = None
+    
+    class Update(Create):
+        ...
+        
+    class Retrieve(Update):
+        ...
+    
+
+class MethodsController(
+    AuthControllerMixin, OwnerIdMixin,
+    MixinUpdateOne, MixinDeleteOne, MixinCreateOne,
+    BaseExchangeController
+):
+
+    Resource = MethodResource
+    
+    async def get_one(self, pk: Any, **filters) -> Optional[Resource.Retrieve]:
+        resp = await self.get_many(id=pk)
+        resp = [i for i in resp if i.code == pk]
+        return resp[0] if resp else None
+
+    async def get_many(
+        self, order_by: Any = 'id', limit: int = None,
+        offset: int = None, **filters
+    ) -> List[Resource.Retrieve]:
+        result = []
+        mute_big_data = 'mute' in filters
+        payments = self.context.config.payments
+        for payment in payments:
+            method = self.context.config.methods.get(payment.method)
+            item: MethodResource.Retrieve = self.Resource.Retrieve(
+                code=payment.code,
+                method=payment.method,
+                cur=payment.cur,
+                icon=method.icon if method and not mute_big_data else None,
+                sub=getattr(method, 'sub', None) if method else None,
+                name=getattr(method, 'name', None) if method else None
+            )
+            item.costs.income = payment.costs.income
+            item.costs.outcome = payment.costs.outcome
+            result.append(item)
+        return result

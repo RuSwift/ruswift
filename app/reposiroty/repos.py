@@ -534,9 +534,9 @@ class CorrectionRepository(
     @classmethod
     async def delete(cls, **filters) -> int:
 
-        def __atomic_delete():
+        def __atomic_delete(**filters_):
             with transaction.atomic():
-                return cls.sync_delete(**filters)
+                return cls.sync_delete(**filters_)
 
         return await database_sync_to_async(__atomic_delete)(**filters)
 

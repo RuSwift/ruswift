@@ -12,11 +12,13 @@ from django.http import HttpResponseBadRequest
 from core import float_to_datetime, secs_delta, utc_now_float
 from cache import Cache
 from entities import (
-    Direction, Payment, Currency, PaymentMethod, CashMethod, Network
+    Direction, Payment, Currency, PaymentMethod, CashMethod, Network,
+    Correction
 )
 from reposiroty import (
     DirectionRepository, CurrencyRepository, PaymentMethodRepository,
-    NetworkRepository, PaymentRepository, CashMethodRepository
+    NetworkRepository, PaymentRepository, CashMethodRepository,
+    CorrectionRepository, ExchangeConfigRepository
 )
 from merchants import (
     MerchantRatios, EngineVariable, P2PEngineVariable
@@ -408,28 +410,22 @@ class CurrenciesController(
         return True
 
 
-
-class MethodLimits(BaseModel):
-    minimum: Optional[float] = None
-    maximum: Optional[float] = None
-    cur: str
-    
-
 class MethodCostResource(BaseResource):
     
     pk = 'id'
     
-    class Create(BaseResource.Create):
-        id: str
+    class Complex(BaseModel):
         cost: float
         is_percents: bool
         cur: str
-        limits: Optional[MethodLimits] = None
     
-    class Update(Create):
+    class Create(Complex, BaseResource.Create):
+        id: str
+    
+    class Update(Complex):
         ...
         
-    class Retrieve(Update):
+    class Retrieve(Create):
         ...
     
 
@@ -457,7 +453,61 @@ class MethodCostController(
                     {**c.model_dump(), **{'id': _id}}
                 )
             ) 
-        return result
+        return list(sorted(result, key=lambda item: item.id))
+    
+    async def create_one(self, data: Resource.Create, **extra):
+        await ExchangeConfigRepository.invalidate_cache()
+        entity = await CorrectionRepository.get(uid=data.id)
+        if entity:
+            raise ValueError('Запись с таким ID уже существует')
+        entity = Correction(
+            cost=data.cost,
+            is_percents=data.is_percents,
+            cur=data.cur
+        )
+        await CorrectionRepository.update_or_create(
+            entity, uid=data.id
+        )
+        return self.Resource.Retrieve(
+            id=data.id,
+            cost=data.cost,
+            is_percents=data.is_percents,
+            cur=data.cur
+        )
+    
+    async def update_one(
+        self, pk: Any, data: Resource.Update, **extra
+    ) -> Optional[Resource.Retrieve]:
+        entity = Correction(
+            cost=data.cost,
+            is_percents=data.is_percents,
+            cur=data.cur
+        )
+        upd = await CorrectionRepository.update(
+            entity, uid=pk
+        )
+        await ExchangeConfigRepository.invalidate_cache()
+        return self.Resource.Retrieve(
+            id=pk,
+            cost=upd.cost,
+            is_percents=upd.is_percents,
+            cur=upd.cur
+        )
+        
+    async def delete_one(self, pk, **extra):
+        uid = pk
+        entity = await CorrectionRepository.get(uid=uid)
+        if not entity:
+            return None
+        await ExchangeConfigRepository.invalidate_cache()
+        payments = self.context.config.payments
+        for payment in payments:
+            if uid in payment.costs.income:
+                raise ValueError(f'Занят в income {payment.code}')
+            if uid in payment.costs.outcome:
+                raise ValueError(f'Занят в outcome {payment.code}')
+        await CorrectionRepository.delete(uid=uid)
+        return entity
         
         
 class Costs(BaseModel):

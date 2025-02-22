@@ -3285,7 +3285,8 @@ Vue.component(
             return {
                 error_msg: null,
                 loading_costs: false,
-                costs: []
+                costs: [],
+                cost_create_mode: false,
             }
         },
         mounted(){
@@ -3307,6 +3308,8 @@ Vue.component(
                                 for (let i=0; i<response.data.length; i++) {
                                     let c = response.data[i];
                                     c.editing = false;
+                                    c.loading = false;
+                                    c.error = null;
                                     new_costs.push(c);
                                 }
                                 self.costs = new_costs;
@@ -3318,17 +3321,164 @@ Vue.component(
                         )
                 }
             },
-            cancel_cost_item(cost) {
-                dump = cost._dump;
-                if (dump) {
-                    cost.cost = dump.cost;
-                    cost.cur = dump.cur;
-                    cost.is_percents = dump.is_percents;
-                    cost._dump = null;
+            create_cost(cost){
+                if (!cost.id) {
+                    cost.error = 'ID пуст';
+                    return;
                 }
-                cost.editing = false;
+                cost.loading = true;
+                const payload = JSON.stringify(
+                    {
+                        id: cost.id,
+                        cost: parseFloat(cost.cost),
+                        is_percents: cost.is_percents,
+                        cur: cost.cur
+                    }
+                );
+                const config = {
+                    headers: {'Content-Type': 'application/json'}
+                }
+                cost.loading = true;
+                cost.error = null
+                const self = this;
+                axios
+                    .post(
+                        '/api/exchange/costs',
+                        payload, config
+                    )
+                    .then(
+                        (response) => {
+                            this.cost_create_mode = false;
+                            self.refresh('costs');
+                        }
+                    ).catch(
+                        (e) => {
+                            cost.error = gently_extract_error_msg(e);
+                        }
+                    ).finally(
+                        response => (
+                            cost.loading = false
+                        )
+                    )
             },
-            edit_cost_item(cost, flag){
+            update_cost(id) {
+                let c = null;
+                for (let i=0; i<this.costs.length; i++) {
+                    c = this.costs[i];
+                    if (c.id === id) {
+                        break;
+                    }
+                }
+                if (c === null) {
+                    return;
+                }
+
+                const payload = JSON.stringify(
+                    {
+                        cost: parseFloat(c.cost),
+                        is_percents: c.is_percents,
+                        cur: c.cur
+                    }
+                );
+                const config = {
+                    headers: {'Content-Type': 'application/json'}
+                }
+                c.loading = true;
+                c.error = null
+                axios
+                    .put(
+                        '/api/exchange/costs/' + id,
+                        payload, config
+                    )
+                    .then(
+                        (response) => {
+                            c.cost = response.data.cost;
+                            c.is_percents = response.data.is_percents;
+                            c.cur = response.data.cur;
+                        }
+                    ).catch(
+                        (e) => {
+                            c.error = gently_extract_error_msg(e);
+                        }
+                    ).finally(
+                        response => (
+                            c.loading = false
+                        )
+                    )
+            },
+            delete_cost(id) {
+                let c = null;
+                for (let i=0; i<this.costs.length; i++) {
+                    c = this.costs[i];
+                    if (c.id === id) {
+                        break;
+                    }
+                }
+                if (c === null) {
+                    return;
+                }
+                c.loading = true;
+                c.error = null
+                const self = this;
+                axios
+                    .delete(
+                        '/api/exchange/costs/' + id
+                    )
+                    .then(
+                        (response) => {
+                            self.refresh('costs');
+                        }
+                    ).catch(
+                        (e) => {
+                            c.error = gently_extract_error_msg(e);
+                        }
+                    ).finally(
+                        response => (
+                            c.loading = false
+                        )
+                    )
+            },
+            make_cost_create_mode(on){
+                if (on) {
+                    let new_cost = {
+                        creating: true,
+                        loading: false,
+                        editing: true,
+                        error: null,
+                        cost: 0,
+                        is_percents: false,
+                        cur: 'USD'
+                    }
+                    this.costs.push(new_cost);
+                }
+                else {
+                    let new_costs = [];
+                    for (let i=0; i<this.costs.length; i++) {
+                        const c = this.costs[i];
+                        if (!c.creating) {
+                            new_costs.push(c);
+                        }
+                    }
+                    this.costs = new_costs;
+                }
+                this.cost_create_mode = on;
+            },
+            cancel_cost_item(cost) {
+                if (cost.creating) {
+                    this.make_cost_create_mode(false);
+                }
+                else {
+                    dump = cost._dump;
+                    if (dump) {
+                        cost.cost = dump.cost;
+                        cost.cur = dump.cur;
+                        cost.is_percents = dump.is_percents;
+                        cost._dump = null;
+                    }
+                    cost.editing = false;
+                }
+            },
+            edit_cost_item(cost, flag, commit=false){
                 if (cost.editing === flag) {
                     return;
                 }
@@ -3348,6 +3498,9 @@ Vue.component(
                 }
                 else {
                     cost._dump = null;
+                    if (commit) {
+                        this.update_cost(cost.id);
+                    }
                 }
                 
             }
@@ -3381,12 +3534,14 @@ Vue.component(
                                     <th class="text-primary text-center">%</th>\
                                     <th class="text-primary text-center">Валюта</th>
                                     <th class="text-primary text-center"></th>
+                                    <th class="text-primary text-center"></th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="cost in costs">
-                                    <td class="fw-bold" style="padding-right: 10px;">
-                                        [[ cost.id ]]
+                                <tr v-for="cost in costs" :class="{'border border-secondary': cost.creating}">
+                                    <td style="padding-right: 10px;">
+                                        <span v-if="!cost.creating" class="fw-bold" >[[ cost.id ]]</span>
+                                        <input v-if="cost.creating" type="text" v-model="cost.id" class="form-control form-control-sm"/>
                                     </td>
                                     <td class="text-primary" style="padding-right: 10px;">
                                         <span v-if="!cost.editing">[[ cost.cost ]]</span>
@@ -3401,18 +3556,23 @@ Vue.component(
                                         <input v-if="cost.editing" type="text" v-model="cost.cur" style="width: 50px;" class="form-control form-control-sm"/>
                                     </td>
                                     <td>
-                                        
-                                        <button v-if="!cost.editing" @click.prevent="edit_cost_item(cost, true)" class="btn btn-sm btn-secondary">edit</button>
-                                        <button v-if="cost.editing" @click.prevent="cancel_cost_item(cost)" class="btn btn-sm btn-warning">cancel</button>
-                                        <button v-if="cost.editing" @click.prevent="edit_cost_item(cost, false)" class="btn btn-sm btn-success">ok</button>
-                                        <button v-if="!cost.editing" class="btn btn-sm btn-danger" title="delete">x</button>
+                                        <button v-bind:disabled="cost.loading" v-if="!cost.editing" @click.prevent="edit_cost_item(cost, true)" class="btn btn-sm btn-secondary">edit</button>
+                                        <button v-bind:disabled="cost.loading" v-if="cost.editing" @click.prevent="cancel_cost_item(cost)" class="btn btn-sm btn-warning">cancel</button>
+                                        <button v-bind:disabled="cost.loading" v-if="cost.editing && !cost.creating" @click.prevent="edit_cost_item(cost, false, true)" class="btn btn-sm btn-success">ok</button>
+                                        <button v-bind:disabled="cost.loading" v-if="!cost.editing" @click.prevent="delete_cost(cost.id)" class="btn btn-sm btn-danger" title="delete">x</button>
+
+                                        <button v-bind:disabled="cost.loading" v-if="cost.creating" @click.prevent="create_cost(cost)" class="btn btn-sm btn-success">ok</button>
+                                    </td>
+                                    <td>
+                                        <img v-if="cost.loading" src="/static/assets/img/pending-green2.gif" style="max-height: 15px;margin-left:4px;"/>
+                                        <span v-if="cost.error" class="text-danger" style="margin-left:4px;">[[ cost.error ]]</span>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td></td>
                                     <td>
                                         <div class="w-100 text-center">
-                                            <button class="btn btn-sm btn-success">+</button>
+                                            <button v-if="!cost_create_mode" @click.prevent="make_cost_create_mode(true)" class="btn btn-sm btn-success">+</button>
                                         </div>
                                     </td>
                                     <td></td>

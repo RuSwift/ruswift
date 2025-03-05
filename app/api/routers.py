@@ -7,12 +7,14 @@ from .ratios import EngineRateController, XMLEngineRateController
 from .storage import StorageController
 from .ledgers import LedgerController
 from .directions import (
-    DirectionController, CurrenciesController, MethodsController, MethodCostController
+    DirectionController, CurrenciesController, PaymentController, 
+    MethodCostController, MethodController
 )
 from .mass_payment import (
     MassPaymentController, ControlPanelMassPaymentController
 )
 from .orders import OrderController
+from .autocomplete import BestChangeCodeController, ActiveCurrencyController
 
 
 api_router = ExchangeHttpRouter('api')
@@ -39,5 +41,12 @@ exchange_router = ExchangeHttpRouter('exchange')
 exchange_router.register('directions', DirectionController)
 exchange_router.register('currencies', CurrenciesController)
 exchange_router.register('costs', MethodCostController)
-exchange_router.register('methods', MethodsController)
+exchange_router.register('payments', PaymentController)
+exchange_router.register('methods', MethodController)
 api_router.append(exchange_router)
+
+autocomplete_router = ExchangeHttpRouter('autocomplete')
+autocomplete_router.register('bc-codes', BestChangeCodeController)
+autocomplete_router.register('active-curs', ActiveCurrencyController)
+
+api_router.append(autocomplete_router)

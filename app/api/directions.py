@@ -513,9 +513,137 @@ class MethodCostController(
 class Costs(BaseModel):
     income: List[str] = pydantic.Field(default_factory=list)
     outcome: List[str] = pydantic.Field(default_factory=list)
+
+
+class MethodResource(BaseResource):
+    
+    pk = 'code'
+    
+    class Create(BaseResource.Create):
+        code: str
+        category: Literal['blockchain', 'payment-system', 'cash']
+        name: str
+        icon: Optional[str] = None
+        is_enabled: Optional[bool] = True
+        category: Optional[str] = None
+        explorer: Optional[str] = None
+        sub: Optional[str] = None
+        
+    class Update(Create):
+        ...
+    
+    class Retrieve(Update):
+        ...
+        
+        
+class MethodController(
+    AuthControllerMixin, OwnerIdMixin,
+    MixinUpdateOne, MixinDeleteOne, MixinCreateOne,
+    BaseExchangeController
+):
+    
+    Resource = MethodResource
+    
+    async def get_one(self, pk: Any, **filters) -> Optional[Resource.Retrieve]:
+        resp = await self.get_many(id=pk)
+        resp = [i for i in resp if i.code == pk]
+        return resp[0] if resp else None
+
+    async def get_many(
+        self, order_by: Any = 'id', limit: int = None,
+        offset: int = None, **filters
+    ) -> List[Resource.Retrieve]:
+        mute_big_data = 'mute' in filters
+        result = []
+        methods = self.context.config.methods
+        for code, meth in methods.items():
+            meth: Union[Network, PaymentMethod, CashMethod]
+            result.append(
+                self._build_retrieve(
+                    meth, mute_big_data
+                )
+            )
+        return result
+    
+    async def create_one(self, data: Resource.Create, **extra):
+        await ExchangeConfigRepository.invalidate_cache()
+        entity = await PaymentMethodRepository.get(code=data.code)
+        if entity:
+            raise ValueError('Запись с таким ID уже существует')
+        repo_cls = self._get_repo(data.category)
+        pld = data.model_dump(
+            include=repo_cls.Entity.model_fields_set,
+            exclude_none=True
+        )
+        pld['owner_did'] = self.identity.did.root
+        entity = repo_cls.Entity(**pld)
+        created = await repo_cls.update_or_create(
+            entity, code=data.code
+        )
+        return self._build_retrieve(created)
+    
+    async def update_one(
+        self, pk: Any, data: Resource.Update, **extra
+    ) -> Optional[Resource.Retrieve]:
+        repo_cls = self._get_repo(data.category)
+        pld = data.model_dump(
+            include=repo_cls.Entity.model_fields_set,
+            exclude_none=True
+        )
+        pld['owner_did'] = self.identity.did.root
+        pld['code'] = pk
+        entity = repo_cls.Entity(**pld)
+        upd = await repo_cls.update(
+            entity, code=pk
+        )
+        return self._build_retrieve(upd)
+    
+    async def delete_one(self, pk, **extra):
+        for ctg in ('blockchain', 'payment-system', 'cash'):
+            repo_cls = self._get_repo(ctg)
+            entity = await repo_cls.get(code=pk)
+            if entity:
+                break
+        if not entity:
+            return None
+        await ExchangeConfigRepository.invalidate_cache()
+        await repo_cls.delete(code=pk)
+        return entity
+        
+    @classmethod
+    def _get_repo(cls, category: str) -> Union[NetworkRepository, CashMethodRepository, PaymentMethodRepository]:
+        if category == 'blockchain':
+            return NetworkRepository
+        elif category == 'payment-system':
+            return PaymentMethodRepository
+        elif category == 'cash':
+            return CashMethodRepository
+        else:
+            raise ValueError('Invalid category')
+        
+    @classmethod
+    def _build_retrieve(
+        cls, 
+        e: Union[Network, PaymentMethod, CashMethod],
+        mute_big_data: bool = False
+    ) -> Resource.Retrieve:
+        if isinstance(e, Network):
+            sub=getattr(e, 'sub', 'crypto')
+        else:
+            sub = e.sub
+        return cls.Resource.Retrieve(
+            code=e.code,
+            category=e.category,
+            name=e.name,
+            icon=None if mute_big_data else e.icon,
+            is_enabled=e.is_enabled,
+            explorer=getattr(e, 'explorer', None),
+            sub=sub
+        )
+    
     
         
-class MethodResource(BaseResource):
+class PaymentResource(BaseResource):
     
     pk = 'code'
     
@@ -527,6 +655,7 @@ class MethodResource(BaseResource):
         sub: Optional[Literal['fiat', 'digital', 'wire', 'cash', 'crypto']] = 'crypto'
         costs: Costs = pydantic.Field(default_factory=Costs)
         name: Optional[str] = None
+        category: Optional[str] = None
     
     class Update(Create):
         ...
@@ -535,13 +664,13 @@ class MethodResource(BaseResource):
         ...
     
 
-class MethodsController(
+class PaymentController(
     AuthControllerMixin, OwnerIdMixin,
     MixinUpdateOne, MixinDeleteOne, MixinCreateOne,
     BaseExchangeController
 ):
 
-    Resource = MethodResource
+    Resource = PaymentResource
     
     async def get_one(self, pk: Any, **filters) -> Optional[Resource.Retrieve]:
         resp = await self.get_many(id=pk)
@@ -557,7 +686,7 @@ class MethodsController(
         payments = self.context.config.payments
         for payment in payments:
             method = self.context.config.methods.get(payment.method)
-            item: MethodResource.Retrieve = self.Resource.Retrieve(
+            item: PaymentResource.Retrieve = self.Resource.Retrieve(
                 code=payment.code,
                 method=payment.method,
                 cur=payment.cur,

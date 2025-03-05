@@ -3287,15 +3287,64 @@ Vue.component(
                 loading_costs: false,
                 costs: [],
                 cost_create_mode: false,
+                loading_methods: false,
+                table: {
+                    headers: [
+                        {
+                            label: 'Bestchange Code',
+                            sortable: true,
+                        },
+                        {
+                            label: 'Method uid',
+                            sortable: true,
+                            type: "string"
+                        },
+                        {
+                            label: 'Cur',
+                            sortable: false
+                        },
+                        {
+                            label: 'Icon',
+                            sortable: false
+                        },
+                        {
+                            label: 'User-friendly Name',
+                            sortable: true,
+                            type: "string"
+                        },
+                        {
+                            label: 'Sub',
+                            sortable: false
+                        }
+                    ],
+                    rows: []
+                },
+                editing_row: null,
+                show_edit_modal: false,
+                methods_map: {},
+                modal_mode: 'edit', // edit | create,
+                method_under_edit: {},
+                active_curs: []
             }
         },
         mounted(){
             this.refresh();
         },
+        updated(){
+            /*
+            $( "#cur-autocomplete" ).autocomplete({
+                source: "/api/autocomplete/active-curs",
+                autoFocus: true,
+                classes: {
+                    "ui-autocomplete": "list-group-item list-group-item-light"
+                }
+            });*/
+        },
         methods: {
             refresh(target = 'all'){
                 load_costs = target === 'costs' || target === 'all';
-                load_methods = target === 'methods' || target === 'all';
+                load_payments = target === 'payments' || target === 'all';
+                load_active_curs = target === 'curs' || target === 'all';
                 const self = this;
                 if (load_costs) {
                     self.loading_costs = true;
@@ -3303,7 +3352,7 @@ Vue.component(
                         .get('/api/exchange/costs')
                         .then(
                             (response) => {
-                                console.log(response.data);
+                                //console.log(response.data);
                                 let new_costs = [];
                                 for (let i=0; i<response.data.length; i++) {
                                     let c = response.data[i];
@@ -3318,6 +3367,79 @@ Vue.component(
                             response => (
                                 self.loading_costs = false
                             )
+                        )
+                }
+                if (load_payments) {
+                    self.loading_methods = true;
+                    axios
+                        .get('/api/exchange/payments')
+                        .then(
+                            (response) => {
+                                //console.log(response.data);
+                                let rows = [];
+                                self.methods_map = {};
+                                for (let i=0; i<response.data.length; i++) {
+                                    let o = response.data[i];
+                                    self.methods_map[o.code] = o;
+                                    let cell_icon = {
+                                        id: 'icon',
+                                        text: ''
+                                    }
+                                    if (o.icon) {
+                                        cell_icon.icon = {
+                                            src: o.icon,
+                                            style: o.icon ? 'max-height: 25px;margin-left:4px;' : 'display:none;'
+                                        }
+                                    }
+                                    let row = {
+                                        id: o.code,
+                                        cells: [
+                                            {
+                                                id: 'code',
+                                                text: o.code,
+                                                class: 'fw-bold',
+                
+                                            },
+                                            {
+                                                id: 'method',
+                                                text: o.method,
+                                                class: 'text-primary'
+                                            },
+                                            {
+                                                id: 'cur',
+                                                text: o.cur,
+                                                class: 'text-primary'
+                                            },
+                                            cell_icon,
+                                            {
+                                                id: 'user_friendly_name',
+                                                text: o.name,
+                                            },
+                                            {
+                                                id: 'sub',
+                                                text: o.sub,
+                                                class: 'badge bg-primary'
+                                            }
+                                        ]
+                                    }
+                                    rows.push(row);
+                                }
+                                this.$refs.table.refresh(rows);
+                            }
+                        ).finally(
+                            (response) => {
+                                self.loading_methods = false;
+                            }
+                        )
+                }
+                if (load_active_curs) {
+                    axios
+                        .get('/api/autocomplete/active-curs')
+                        .then(
+                            (response) => {
+                                //console.log(response.data);
+                                self.active_curs = response.data;
+                            }
                         )
                 }
             },
@@ -3503,6 +3625,15 @@ Vue.component(
                     }
                 }
                 
+            },
+            on_select_row(index, code){
+                this.modal_mode = 'edit';
+                for (let key in this.methods_map[code]) {
+                    const value = this.methods_map[code][key];
+                    this.method_under_edit[key] = value
+                }
+                //console.log(this.method_under_edit);
+                this.show_edit_modal = true;
             }
         },
         template: `
@@ -3510,6 +3641,41 @@ Vue.component(
             <div v-if="error_msg" class="alert alert-danger text-center">
                 <p>[[ error_msg ]]</p>
             </div>
+
+            <modal-window v-if="show_edit_modal" @close="show_edit_modal = false">
+                <div slot="header" class="w-100">
+                    <h3>
+                        <span v-if="modal_mode === 'edit'">Edit Method <b class="text-primary">[[ method_under_edit.code ]]</b></span>
+                        <span v-if="modal_mode === 'create'">Create Method</span>
+                        <button class="btn btn-danger" @click="show_edit_modal = false" style="float: right;">
+                            Close
+                        </button>
+                    </h3>
+                </div>
+                <div slot="body" class="w-100" >
+                    <div class="input-group input-group-sm mb-3">
+                        <span class="input-group-text">Code</span>
+                        <input readonly="readonly" v-model="method_under_edit.code" type="text" class="form-control">
+                    </div>
+                    <div class="input-group input-group-sm mb-3">
+                        <span class="input-group-text">Method UID</span>
+                        <input v-model="method_under_edit.method" type="text" class="form-control">
+                        <span class="input-group-text">Currency</span>
+                        <select class="form-select" v-model="method_under_edit.cur">
+                            <option v-for="cur in active_curs">[[ cur.value ]]</option>
+                        </select>
+                    </div>
+                    <div class="input-group input-group-sm mb-3">
+                        <span class="input-group-text">User-Friendly Name</span>
+                        <input v-model="method_under_edit.name" type="text" class="form-control">
+                        <span class="input-group-text">Sub</span>
+                        <select class="form-select" v-model="method_under_edit.cur">
+                            <option v-for="cur in active_curs">[[ cur.value ]]</option>
+                        </select>
+                    </div>
+                </div>
+                <div slot="footer" class="w-100 text-center"></div>
+            </modal-window>
 
             <div class="card text-left">
                 <div class="card-header">
@@ -3523,7 +3689,9 @@ Vue.component(
                     </button>
                     <h5 style="text-align: left;">Редактор методов оплаты</h5>
                 </div>
+                
                 <div class="card-body" style="text-align:left;">
+                    
                     <div class="w-100 text-left">
                         <loader-circle v-if="loading_costs"></loader-circle>
                         <table v-if="!loading_costs" class="text-left table-responsive">
@@ -3581,12 +3749,18 @@ Vue.component(
                             
                         </table>
                     </div>
-
                     <data-table
                         ref="table"
                         style="text-align: left;"
                         :searchable="false"
+                        :headers="table.headers"
+                        :rows="table.rows"
+                        @select_row="on_select_row"
                     ></data-table>
+                    <loader-circle v-if="loading_methods"></loader-circle>
+                    <div class="w-100 text-center">
+                        <button v-if="!loading_methods" @click.prevent="" class="btn btn-sm btn-success">+</button>
+                    </div>
                 </div>
             </div>
         </div>

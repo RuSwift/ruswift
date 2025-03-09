@@ -159,7 +159,7 @@ class TestConfigRepo:
     async def test_config(self):
         await ExchangeConfigRepository.invalidate_cache()
         cfg1 = await ExchangeConfigRepository.init_from_yaml(
-            '/app/exchange/tests/files/init.example.yml', 'exchange'
+            '/workspaces/ruswift/tests/files/init.example.yml', 'exchange'
         )
         cfg2 = await ExchangeConfigRepository.get()
         assert cfg1

@@ -555,8 +555,8 @@ class MethodController(
     ) -> List[Resource.Retrieve]:
         mute_big_data = 'mute' in filters
         result = []
-        methods = self.context.config.methods
-        for code, meth in methods.items():
+        method_items = sorted(self.context.config.methods.items())
+        for code, meth in method_items:
             meth: Union[Network, PaymentMethod, CashMethod]
             result.append(
                 self._build_retrieve(
@@ -585,9 +585,10 @@ class MethodController(
     async def update_one(
         self, pk: Any, data: Resource.Update, **extra
     ) -> Optional[Resource.Retrieve]:
+        await ExchangeConfigRepository.invalidate_cache()
         repo_cls = self._get_repo(data.category)
         pld = data.model_dump(
-            include=repo_cls.Entity.model_fields_set,
+            include=repo_cls.Entity.__fields__.keys(),
             exclude_none=True
         )
         pld['owner_did'] = self.identity.did.root

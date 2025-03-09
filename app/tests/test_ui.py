@@ -34,7 +34,7 @@ class TestAuth(LiveServerTestCase):
 
     def setUp(self):
         super().setUp()
-        path, section = '/app/exchange/tests/files/init.example.yml', 'exchange'
+        path, section = '/workspaces/ruswift/tests/files/init.example.yml', 'exchange'
         if not os.path.isfile(path):
             raise RuntimeError(f'path "{path}" not exists')
         settings = parse_yaml_file_as(AnyCfg, path)
@@ -142,7 +142,7 @@ class TestViews(LiveServerTestCase):
 
     def setUp(self):
         super().setUp()
-        path, section = '/app/exchange/tests/files/init.example.yml', 'exchange'
+        path, section = '/workspaces/ruswift/tests/files/init.example.yml', 'exchange'
         if not os.path.isfile(path):
             raise RuntimeError(f'path "{path}" not exists')
         settings = parse_yaml_file_as(AnyCfg, path)

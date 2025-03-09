@@ -81,7 +81,7 @@ class ExchangeLiveMixin:
 
     def setUp(self):
         super().setUp()
-        path, section = '/app/exchange/tests/files/init.example.yml', 'exchange'
+        path, section = '/workspaces/ruswift/tests/files/init.example.yml', 'exchange'
         if not os.path.isfile(path):
             raise RuntimeError(f'path "{path}" not exists')
         settings_ = parse_yaml_file_as(AnyCfg, path)
@@ -296,7 +296,7 @@ class TestMTSKYC(LiveServerTestCase):
 
     def setUp(self):
         super().setUp()
-        path, section = '/app/exchange/tests/files/init.example.yml', 'exchange'
+        path, section = '/workspaces/ruswift/tests/files/init.example.yml', 'exchange'
         if not os.path.isfile(path):
             raise RuntimeError(f'path "{path}" not exists')
         settings_ = parse_yaml_file_as(AnyCfg, path)
@@ -379,7 +379,7 @@ class TestContactsVerify(LiveServerTestCase):
 
     def setUp(self):
         super().setUp()
-        path, section = '/app/exchange/tests/files/init.example.yml', 'exchange'
+        path, section = '/workspaces/ruswift/tests/files/init.example.yml', 'exchange'
         if not os.path.isfile(path):
             raise RuntimeError(f'path "{path}" not exists')
         settings_ = parse_yaml_file_as(AnyCfg, path)
@@ -478,7 +478,7 @@ class TestRegistration(LiveServerTestCase):
 
     def setUp(self):
         super().setUp()
-        path, section = '/app/exchange/tests/files/init.example.yml', 'exchange'
+        path, section = '/workspaces/ruswift/tests/files/init.example.yml', 'exchange'
         if not os.path.isfile(path):
             raise RuntimeError(f'path "{path}" not exists')
         settings_ = parse_yaml_file_as(AnyCfg, path)
@@ -660,7 +660,7 @@ class TestAccounts(LiveServerTestCase):
 
     def setUp(self):
         super().setUp()
-        path, section = '/app/exchange/tests/files/init.example.yml', 'exchange'
+        path, section = '/workspaces/ruswift/tests/files/init.example.yml', 'exchange'
         if not os.path.isfile(path):
             raise RuntimeError(f'path "{path}" not exists')
         settings_ = parse_yaml_file_as(AnyCfg, path)
@@ -1171,7 +1171,7 @@ class TestMassPayments(LiveServerTestCase):
 
     def setUp(self):
         super().setUp()
-        path, section = '/app/exchange/tests/files/init.example.yml', 'exchange'
+        path, section = '/workspaces/ruswift/tests/files/init.example.yml', 'exchange'
         if not os.path.isfile(path):
             raise RuntimeError(f'path "{path}" not exists')
         settings_ = parse_yaml_file_as(AnyCfg, path)

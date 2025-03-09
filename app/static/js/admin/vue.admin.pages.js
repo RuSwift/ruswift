@@ -3287,7 +3287,7 @@ Vue.component(
                 loading_costs: false,
                 costs: [],
                 cost_create_mode: false,
-                loading_methods: false,
+                loading_payments: false,
                 table: {
                     headers: [
                         {
@@ -3321,10 +3321,23 @@ Vue.component(
                 },
                 editing_row: null,
                 show_edit_modal: false,
-                methods_map: {},
+                payments_map: {},
                 modal_mode: 'edit', // edit | create,
-                method_under_edit: {},
-                active_curs: []
+                payment_under_edit: {},
+                active_curs: [],
+                methods: [],
+                methods_map: {},
+                cur_method_code: null,
+                cur_method_enabled: false,
+                cur_method: {},
+                method_op_loading: false,
+                method_op_error: null,
+                method_categories: [
+                    'blockchain', 'payment-system', 'cash'
+                ],
+                avail_meth_subs: [],
+                cur_method_updated: false,
+                cur_method_mode: 'edit',  // edit | add
             }
         },
         mounted(){
@@ -3343,6 +3356,7 @@ Vue.component(
         methods: {
             refresh(target = 'all'){
                 load_costs = target === 'costs' || target === 'all';
+                load_methods = target === 'methods' || target === 'all';
                 load_payments = target === 'payments' || target === 'all';
                 load_active_curs = target === 'curs' || target === 'all';
                 const self = this;
@@ -3369,18 +3383,40 @@ Vue.component(
                             )
                         )
                 }
+                if (load_methods) {
+                    axios
+                        .get('/api/exchange/methods')
+                        .then(
+                            (response) => {
+                                //sconsole.log(response.data);
+                                self.methods = response.data;
+                                self.methods_map = {}
+                                for (let i=0; i<response.data.length; i++) {
+                                    const o = response.data[i];
+                                    self.methods_map[o.code] = o;
+                                }
+                                if (self.cur_method_code == null) {
+                                    self.on_select_method(response.data[0].code);
+                                }
+                            }
+                        ).finally(
+                            (response) => {
+                                
+                            }
+                        )
+                }
                 if (load_payments) {
-                    self.loading_methods = true;
+                    self.loading_payments = true;
                     axios
                         .get('/api/exchange/payments')
                         .then(
                             (response) => {
                                 //console.log(response.data);
                                 let rows = [];
-                                self.methods_map = {};
+                                self.payments_map = {};
                                 for (let i=0; i<response.data.length; i++) {
                                     let o = response.data[i];
-                                    self.methods_map[o.code] = o;
+                                    self.payments_map[o.code] = o;
                                     let cell_icon = {
                                         id: 'icon',
                                         text: ''
@@ -3428,7 +3464,7 @@ Vue.component(
                             }
                         ).finally(
                             (response) => {
-                                self.loading_methods = false;
+                                self.loading_payments = false;
                             }
                         )
                 }
@@ -3628,12 +3664,83 @@ Vue.component(
             },
             on_select_row(index, code){
                 this.modal_mode = 'edit';
-                for (let key in this.methods_map[code]) {
-                    const value = this.methods_map[code][key];
-                    this.method_under_edit[key] = value
+                for (let key in this.payments_map[code]) {
+                    const value = this.payments_map[code][key];
+                    this.payment_under_edit[key] = value
                 }
-                //console.log(this.method_under_edit);
                 this.show_edit_modal = true;
+            },
+            on_select_method(code) {
+                this.cur_method_code = code;
+                console.log(this.cur_method_code);
+                //this.cur_method = {}
+                for (let key in this.methods_map[this.cur_method_code]) {
+                    this.cur_method[key] = this.methods_map[this.cur_method_code][key];
+                }
+                this.cur_method_enabled = this.cur_method['is_enabled'];
+                //console.log(this.cur_method);
+                this.on_select_meth_category(this.cur_method['category']);
+                this.cur_method_updated = false;
+                this.method_op_loading = false;
+                this.method_op_error = null;
+                this.cur_method_mode = 'edit'
+            },
+            on_select_meth_category(value){
+                if (value == 'blockchain') {
+                    this.avail_meth_subs = null
+                }
+                else if (value == 'payment-system') {
+                    this.avail_meth_subs = ['fiat', 'digital', 'wire'];
+                }
+                else if (value == 'cash'){
+                    this.avail_meth_subs =['cash', 'fiat']
+                }
+                else {
+                    this.avail_meth_subs = null
+                }
+                if (this.avail_meth_subs && this.avail_meth_subs.indexOf(this.cur_method.sub) < 0) {
+                    this.cur_method.sub = this.avail_meth_subs[0];
+                }
+                this.cur_method_updated = true;
+            },
+            on_set_meth_mode(mode){
+                if (mode == 'add') {
+                    this.cur_method_mode = 'add';
+                    this.cur_method = {}
+                }
+                else if (mode == 'edit') {
+                    this.cur_method_mode = 'edit';
+                    this.on_select_method(this.cur_method_code);
+                }
+            },
+            update_cur_method(){
+                const payload = JSON.stringify(this.cur_method);
+                const config = {
+                    headers: {'Content-Type': 'application/json'}
+                }
+                this.method_op_loading = true;
+                this.method_op_error = null;
+                const self = this;
+                axios
+                    .put(
+                        '/api/exchange/methods/' + this.cur_method.code,
+                        payload, config
+                    )
+                    .then(
+                        (response) => {
+                            self.cur_method_updated = false;
+                            self.refresh();
+                        }
+                    ).catch(
+                        (e) => {
+                            self.method_op_error = gently_extract_error_msg(e);
+                        }
+                    ).finally(
+                        (response) => {
+                            self.method_op_loading = false;
+                            self.cur_method_updated = false;
+                        }
+                    )
             }
         },
         template: `
@@ -3645,7 +3752,7 @@ Vue.component(
             <modal-window v-if="show_edit_modal" @close="show_edit_modal = false">
                 <div slot="header" class="w-100">
                     <h3>
-                        <span v-if="modal_mode === 'edit'">Edit Method <b class="text-primary">[[ method_under_edit.code ]]</b></span>
+                        <span v-if="modal_mode === 'edit'">Edit Method <b class="text-primary">[[ payment_under_edit.code ]]</b></span>
                         <span v-if="modal_mode === 'create'">Create Method</span>
                         <button class="btn btn-danger" @click="show_edit_modal = false" style="float: right;">
                             Close
@@ -3655,21 +3762,21 @@ Vue.component(
                 <div slot="body" class="w-100" >
                     <div class="input-group input-group-sm mb-3">
                         <span class="input-group-text">Code</span>
-                        <input readonly="readonly" v-model="method_under_edit.code" type="text" class="form-control">
+                        <input readonly="readonly" v-model="payment_under_edit.code" type="text" class="form-control">
                     </div>
                     <div class="input-group input-group-sm mb-3">
                         <span class="input-group-text">Method UID</span>
-                        <input v-model="method_under_edit.method" type="text" class="form-control">
+                        <input v-model="payment_under_edit.method" type="text" class="form-control">
                         <span class="input-group-text">Currency</span>
-                        <select class="form-select" v-model="method_under_edit.cur">
+                        <select class="form-select" v-model="payment_under_edit.cur">
                             <option v-for="cur in active_curs">[[ cur.value ]]</option>
                         </select>
                     </div>
                     <div class="input-group input-group-sm mb-3">
                         <span class="input-group-text">User-Friendly Name</span>
-                        <input v-model="method_under_edit.name" type="text" class="form-control">
+                        <input v-model="payment_under_edit.name" type="text" class="form-control">
                         <span class="input-group-text">Sub</span>
-                        <select class="form-select" v-model="method_under_edit.cur">
+                        <select class="form-select" v-model="payment_under_edit.cur">
                             <option v-for="cur in active_curs">[[ cur.value ]]</option>
                         </select>
                     </div>
@@ -3749,6 +3856,78 @@ Vue.component(
                             
                         </table>
                     </div>
+                    <div class="w-100">
+                        <table>
+                            <tr>
+                                <td style="width:150px;" class="text-center p-2 border rounded-5 border-3 border-primary border-opacity-25 m-3">
+                                    <div class="w-100 text-center"><a href="">Change Icon</a></div>
+                                    <img v-bind:src="cur_method.icon" style="width:100px;height:100px;"/>
+                                </td>
+                                <td style="width: 75%;">
+                                    <div class="input-group input-group-sm mb-3">
+                                        
+                                        <span class="input-group-text">Code</span>
+                                        <span v-if="cur_method_mode != 'add'" @click.prevent="on_set_meth_mode('add')" class="btn btn-sm btn-success">+</span>
+                                        <span v-if="cur_method_mode != 'edit'" @click.prevent="on_set_meth_mode('edit')" class="btn btn-sm btn-warning">cancel</span>
+                                        <select v-if="cur_method_mode == 'edit'" class="form-select" v-model="cur_method.code" @change="on_select_method(cur_method.code)">
+                                            <option v-for="meth in methods">
+                                                [[ meth.code ]]
+                                            </option>
+                                        </select>
+                                        <input v-if="cur_method_mode == 'add'" v-model="cur_method.code" type="text" class="form-control" @keyup="cur_method_updated=true">
+                                        
+                                        <span class="input-group-text">Name</span>
+                                        <input v-model="cur_method.name" type="text" class="form-control" @keyup="cur_method_updated=true">
+                                        
+                                        <span class="input-group-text">Category</span>
+                                        <select class="form-select" v-model="cur_method.category" @change="on_select_meth_category(cur_method.category)">
+                                            <option v-for="ctg in method_categories">
+                                                [[ ctg ]]
+                                            </option>
+                                        </select>
+
+                                        <span class="input-group-text">Sub</span>
+                                        <select v-bind:disabled="avail_meth_subs == null" class="form-select" v-model="cur_method.sub" @change="cur_method_updated=true">
+                                            <option v-for="sub in avail_meth_subs">
+                                                [[ sub ]]
+                                            </option>
+                                        </select>
+                                        
+                                    </div>
+                                    <div class="input-group input-group-sm mb-3">
+                                        <div class="form-check" style="margin-right:10px;">
+                                            <input v-model="cur_method_enabled" class="form-check-input" type="checkbox" @keyup="cur_method_updated=true" >
+                                            <label class="form-check-label" for="flexCheckDefault">
+                                                Enabled
+                                            </label>
+                                        </div>
+                                        <span class="input-group-text">Explorer</span>
+                                        <input v-model="cur_method.explorer" type="text" class="form-control" @keyup="cur_method_updated=true">
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                        <div class="w-100 text-center">
+                            <span class="text-danger">[[ method_op_error ]]</span>
+                            <br/>
+                            <button 
+                                v-if="!method_op_loading && cur_method_mode == 'edit'"
+                                @click.prevent="update_cur_method()" 
+                                v-bind:disabled="!cur_method_updated" 
+                                class="btn btn-sm btn-primary"
+                            >
+                                Update
+                            </button>
+                            <button 
+                                v-if="!method_op_loading && cur_method_mode == 'add'"
+                                @click.prevent=""  
+                                class="btn btn-sm btn-danger"
+                            >
+                                Add
+                            </button>
+                        </div>
+                       
+                    </div>
                     <data-table
                         ref="table"
                         style="text-align: left;"
@@ -3757,9 +3936,9 @@ Vue.component(
                         :rows="table.rows"
                         @select_row="on_select_row"
                     ></data-table>
-                    <loader-circle v-if="loading_methods"></loader-circle>
+                    <loader-circle v-if="loading_payments"></loader-circle>
                     <div class="w-100 text-center">
-                        <button v-if="!loading_methods" @click.prevent="" class="btn btn-sm btn-success">+</button>
+                        <button v-if="!loading_payments" @click.prevent="" class="btn btn-sm btn-success">+</button>
                     </div>
                 </div>
             </div>

@@ -1,11 +1,11 @@
 import pytest
 
-from exchange.ratios import (
+from ratios import (
     ForexEngine, HTXEngine, CoinMarketCapEngine,
     GarantexEngine, GarantexP2P, BestChangeRatios, HTXP2P
 )
-from exchange.context import Context
-from exchange.entities import (
+from context import Context
+from entities import (
     ExchangeConfig, Account, BestChangeMethodMapping, BestChangeCodeRule,
     P2POrders
 )

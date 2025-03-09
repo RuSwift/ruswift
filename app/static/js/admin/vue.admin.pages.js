@@ -3338,6 +3338,12 @@ Vue.component(
                 avail_meth_subs: [],
                 cur_method_updated: false,
                 cur_method_mode: 'edit',  // edit | add
+                cur_method_icon_cleared: false,
+                method_op_errors: {
+                    code: false,
+                    name: false,
+                    category: false
+                }
             }
         },
         mounted(){
@@ -3683,7 +3689,8 @@ Vue.component(
                 this.cur_method_updated = false;
                 this.method_op_loading = false;
                 this.method_op_error = null;
-                this.cur_method_mode = 'edit'
+                this.cur_method_mode = 'edit';
+                this.cur_method_icon_cleared = false;
             },
             on_select_meth_category(value){
                 if (value == 'blockchain') {
@@ -3706,12 +3713,17 @@ Vue.component(
             on_set_meth_mode(mode){
                 if (mode == 'add') {
                     this.cur_method_mode = 'add';
-                    this.cur_method = {}
+                    this.cur_method = {};
                 }
                 else if (mode == 'edit') {
                     this.cur_method_mode = 'edit';
                     this.on_select_method(this.cur_method_code);
                 }
+                this.cur_method_icon_cleared = false;
+            },
+            on_clear_meth_icon(){
+                this.cur_method['icon'] = null;
+                this.cur_method_icon_cleared = true;
             },
             update_cur_method(){
                 const payload = JSON.stringify(this.cur_method);
@@ -3741,6 +3753,60 @@ Vue.component(
                             self.cur_method_updated = false;
                         }
                     )
+            },
+            validate_before_op_method(){
+                if (!this.cur_method.code) {
+                    this.method_op_errors.code = true;
+                } 
+                else {
+                    this.method_op_errors.code = false;
+                }
+
+                if (!this.cur_method.name) {
+                    this.method_op_errors.name = true;
+                } 
+                else {
+                    this.method_op_errors.name = false;
+                }
+
+                if (!this.cur_method.category) {
+                    this.method_op_errors.category = true;
+                } 
+                else {
+                    this.method_op_errors.category = false;
+                }
+                return this.method_op_errors.code === false && this.method_op_errors.name === false && this.method_op_errors.category === false;
+            },
+            create_new_method(){
+                success = this.validate_before_op_method();
+                if (!success) {
+                    return;
+                }
+                const payload = JSON.stringify(this.cur_method);
+                const config = {
+                    headers: {'Content-Type': 'application/json'}
+                }
+                this.method_op_loading = true;
+                this.method_op_error = null;
+                const self = this;
+                axios
+                    .post(
+                        '/api/exchange/methods',
+                        payload, config
+                    )
+                    .then(
+                        (response) => {
+                            self.refresh();
+                        }
+                    ).catch(
+                        (e) => {
+                            self.method_op_error = gently_extract_error_msg(e);
+                        }
+                    ).finally(
+                        (response) => {
+                            self.method_op_loading = false;
+                        }
+                    )    
             }
         },
         template: `
@@ -3859,11 +3925,19 @@ Vue.component(
                     <div class="w-100">
                         <table>
                             <tr>
-                                <td style="width:150px;" class="text-center p-2 border rounded-5 border-3 border-primary border-opacity-25 m-3">
+                                <td style="width:25%;" class="text-center p-2 border rounded-5 border-1 border-secondary border-opacity-25 m-3">
                                     <div class="w-100 text-center"><a href="">Change Icon</a></div>
-                                    <img v-bind:src="cur_method.icon" style="width:100px;height:100px;"/>
+                                    <img v-if="cur_method.icon && !cur_method_icon_cleared" v-bind:src="cur_method.icon" style="width:100px;height:100px;"/>
+                                    <div class="w-100 text-center">
+                                        <a @click.prevent="on_clear_meth_icon()" 
+                                           v-if="cur_method.icon && !cur_method_icon_cleared" class="text-danger" href=""
+                                        >
+                                            x clear icon
+                                        </a>
+                                    </div>
                                 </td>
-                                <td style="width: 75%;">
+                                <td></td>
+                                <td style="width: 70%;">
                                     <div class="input-group input-group-sm mb-3">
                                         
                                         <span class="input-group-text">Code</span>
@@ -3874,13 +3948,31 @@ Vue.component(
                                                 [[ meth.code ]]
                                             </option>
                                         </select>
-                                        <input v-if="cur_method_mode == 'add'" v-model="cur_method.code" type="text" class="form-control" @keyup="cur_method_updated=true">
+                                        <input 
+                                            v-if="cur_method_mode == 'add'" 
+                                            v-model="cur_method.code" 
+                                            type="text" 
+                                            class="form-control" 
+                                            @keyup="cur_method_updated=true"
+                                            v-bind:class="{'border-5 border-danger': method_op_errors.code}"
+                                        >
                                         
                                         <span class="input-group-text">Name</span>
-                                        <input v-model="cur_method.name" type="text" class="form-control" @keyup="cur_method_updated=true">
+                                        <input 
+                                            v-model="cur_method.name" 
+                                            type="text" 
+                                            class="form-control" 
+                                            @keyup="cur_method_updated=true"
+                                            v-bind:class="{'border-5 border-danger': method_op_errors.name}"
+                                        >
                                         
                                         <span class="input-group-text">Category</span>
-                                        <select class="form-select" v-model="cur_method.category" @change="on_select_meth_category(cur_method.category)">
+                                        <select 
+                                            class="form-select" 
+                                            v-model="cur_method.category" 
+                                            @change="on_select_meth_category(cur_method.category)"
+                                            v-bind:class="{'border-5 border-danger': method_op_errors.category}"
+                                        >
                                             <option v-for="ctg in method_categories">
                                                 [[ ctg ]]
                                             </option>
@@ -3920,11 +4012,12 @@ Vue.component(
                             </button>
                             <button 
                                 v-if="!method_op_loading && cur_method_mode == 'add'"
-                                @click.prevent=""  
+                                @click.prevent="create_new_method"  
                                 class="btn btn-sm btn-danger"
                             >
                                 Add
                             </button>
+                            <loader-circle v-if="method_op_loading"></loader-circle>
                         </div>
                        
                     </div>

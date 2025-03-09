@@ -73,7 +73,7 @@ class ExchangeConfigRepository(CacheMixin, BaseEntityRepository):
             extra['reports'] = app_sett['reports']
         cfg = ExchangeConfig(
             costs={corr.uid: corr for corr in cors},
-            methods={meth.uid: meth for meth in methods},
+            methods={meth.code: meth for meth in methods},
             currencies=curs,
             payments=payments,
             directions=directions,

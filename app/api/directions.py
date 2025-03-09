@@ -572,7 +572,7 @@ class MethodController(
             raise ValueError('Запись с таким ID уже существует')
         repo_cls = self._get_repo(data.category)
         pld = data.model_dump(
-            include=repo_cls.Entity.model_fields_set,
+            include=repo_cls.Entity.__fields__.keys(),
             exclude_none=True
         )
         pld['owner_did'] = self.identity.did.root

@@ -3295,26 +3295,13 @@ Vue.component(
                             sortable: true,
                         },
                         {
-                            label: 'Method uid',
+                            label: 'Валюта',
+                            sortable: false
+                        },
+                        {
+                            label: 'Template',
                             sortable: true,
                             type: "string"
-                        },
-                        {
-                            label: 'Cur',
-                            sortable: false
-                        },
-                        {
-                            label: 'Icon',
-                            sortable: false
-                        },
-                        {
-                            label: 'User-friendly Name',
-                            sortable: true,
-                            type: "string"
-                        },
-                        {
-                            label: 'Sub',
-                            sortable: false
                         }
                     ],
                     rows: []
@@ -3443,24 +3430,32 @@ Vue.component(
                 
                                             },
                                             {
-                                                id: 'method',
-                                                text: o.method,
-                                                class: 'text-primary'
-                                            },
-                                            {
                                                 id: 'cur',
                                                 text: o.cur,
                                                 class: 'text-primary'
                                             },
-                                            cell_icon,
                                             {
-                                                id: 'user_friendly_name',
-                                                text: o.name,
-                                            },
-                                            {
-                                                id: 'sub',
-                                                text: o.sub,
-                                                class: 'badge bg-primary'
+                                                id: 'template',
+                                                text: o.method,
+                                                class: 'badge bg-primary',
+                                                icon: o.icon ? {
+                                                    src: o.icon,
+                                                    style: o.icon ? 'max-height: 25px;margin-left:4px;' : 'display:none;'
+                                                }  : null,
+                                                links: [
+                                                    {
+                                                        id: 'user_friendly_name',
+                                                        href: '',
+                                                        label: o.name,
+                                                        style: 'margin-left: 10px;',
+                                                    },
+                                                    {
+                                                        id: 'sub',
+                                                        href: '',
+                                                        style: 'margin-left: 10px;',
+                                                        label: o.sub
+                                                    }
+                                                ]
                                             }
                                         ]
                                     }
@@ -3782,6 +3777,9 @@ Vue.component(
                 if (!success) {
                     return;
                 }
+                if (!this.cur_method.explorer) {
+                    this.cur_method.explorer = "";
+                }
                 const payload = JSON.stringify(this.cur_method);
                 const config = {
                     headers: {'Content-Type': 'application/json'}
@@ -3797,6 +3795,7 @@ Vue.component(
                     .then(
                         (response) => {
                             self.refresh();
+                            self.cur_method_mode = 'edit';
                         }
                     ).catch(
                         (e) => {
@@ -3807,6 +3806,29 @@ Vue.component(
                             self.method_op_loading = false;
                         }
                     )    
+            },
+            delete_method(code){
+                this.method_op_loading = true;
+                this.method_op_error = null;
+                const self = this;
+                axios
+                    .delete(
+                        '/api/exchange/methods/' + code
+                    )
+                    .then(
+                        (response) => {
+                            self.refresh();
+                            //self.on_select_method(self.methods);
+                        }
+                    ).catch(
+                        (e) => {
+                            self.method_op_error = gently_extract_error_msg(e);
+                        }
+                    ).finally(
+                        (response) => {
+                            self.method_op_loading = false;
+                        }
+                    )  
             }
         },
         template: `
@@ -3987,14 +4009,29 @@ Vue.component(
                                         
                                     </div>
                                     <div class="input-group input-group-sm mb-3">
+                                        <!--
                                         <div class="form-check" style="margin-right:10px;">
                                             <input v-model="cur_method_enabled" class="form-check-input" type="checkbox" @keyup="cur_method_updated=true" >
                                             <label class="form-check-label" for="flexCheckDefault">
                                                 Enabled
                                             </label>
                                         </div>
+                                        -->
                                         <span class="input-group-text">Explorer</span>
                                         <input v-model="cur_method.explorer" type="text" class="form-control" @keyup="cur_method_updated=true">
+                                    </div>
+                                    <div class="w-100" v-if="cur_method_mode == 'edit'">
+                                        <span>Платежных методов используют: <b>[[ cur_method.payments_count ]]</b></span>
+                                        <button 
+                                            @click.prevent="delete_method(cur_method.code)"
+                                            v-bind:disabled="cur_method.payments_count > 0" 
+                                            class="btn btn-sm btn-danger"
+                                        >
+                                            x delete
+                                        </button>
+                                        <p v-if="cur_method.payments_count > 0" class="text-warning">
+                                            Вы не можете удалить шаблон если он используется в одном из методов
+                                        </p>
                                     </div>
                                 </td>
                             </tr>

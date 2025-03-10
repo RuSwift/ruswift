@@ -62,9 +62,9 @@ class BasePaymentMethodMixin:
     @classmethod
     async def delete(cls, **filters) -> int:
 
-        def __atomic_delete():
+        def __atomic_delete(**_filters):
             with transaction.atomic():
-                return cls.sync_delete(**filters)
+                return cls.sync_delete(**_filters)
 
         return await database_sync_to_async(__atomic_delete)(**filters)
 

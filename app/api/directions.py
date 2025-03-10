@@ -533,7 +533,7 @@ class MethodResource(BaseResource):
         ...
     
     class Retrieve(Update):
-        ...
+        payments_count: Optional[int] = None
         
         
 class MethodController(
@@ -556,11 +556,14 @@ class MethodController(
         mute_big_data = 'mute' in filters
         result = []
         method_items = sorted(self.context.config.methods.items())
+        pm_count = defaultdict(int)
+        for p in self.context.config.payments:
+            pm_count[p.method] += 1
         for code, meth in method_items:
             meth: Union[Network, PaymentMethod, CashMethod]
             result.append(
                 self._build_retrieve(
-                    meth, mute_big_data
+                    meth, mute_big_data, pm_count[code]
                 )
             )
         return result
@@ -594,21 +597,26 @@ class MethodController(
         pld['owner_did'] = self.identity.did.root
         pld['code'] = pk
         entity = repo_cls.Entity(**pld)
+        extra_filters = self.owner_id_filters()
         upd = await repo_cls.update(
-            entity, code=pk
+            entity, code=pk, **extra_filters
         )
         return self._build_retrieve(upd)
     
     async def delete_one(self, pk, **extra):
         for ctg in ('blockchain', 'payment-system', 'cash'):
             repo_cls = self._get_repo(ctg)
-            entity = await repo_cls.get(code=pk)
+            entity = await repo_cls.get(code=pk, )
             if entity:
                 break
         if not entity:
             return None
+        for p in self.context.config.payments:
+            if p.method == pk:
+                raise ValueError(f'Method is busy by {p.code} payment')
         await ExchangeConfigRepository.invalidate_cache()
-        await repo_cls.delete(code=pk)
+        extra_filters = self.owner_id_filters()
+        await repo_cls.delete(code=pk, **extra_filters)
         return entity
         
     @classmethod
@@ -626,7 +634,8 @@ class MethodController(
     def _build_retrieve(
         cls, 
         e: Union[Network, PaymentMethod, CashMethod],
-        mute_big_data: bool = False
+        mute_big_data: bool = False,
+        p_count: int = None
     ) -> Resource.Retrieve:
         if isinstance(e, Network):
             sub=getattr(e, 'sub', 'crypto')
@@ -639,7 +648,8 @@ class MethodController(
             icon=None if mute_big_data else e.icon,
             is_enabled=e.is_enabled,
             explorer=getattr(e, 'explorer', None),
-            sub=sub
+            sub=sub,
+            payments_count=p_count
         )
     
     

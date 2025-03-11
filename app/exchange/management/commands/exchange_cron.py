@@ -68,7 +68,7 @@ class Command(BaseCommand):
             self._refresh_forex_ratios(),
             self._refresh_htx_ratios(),
             self._refresh_coinmarketcap_ratios(cache),
-            self._refresh_garantex_ratios(),
+            # self._refresh_garantex_ratios(),
             self._refresh_bestchange_ratios()
         ]
         shuffle(routines)

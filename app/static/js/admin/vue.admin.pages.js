@@ -3337,14 +3337,13 @@ Vue.component(
             this.refresh();
         },
         updated(){
-            /*
-            $( "#cur-autocomplete" ).autocomplete({
-                source: "/api/autocomplete/active-curs",
+            let comp = $("#payment_under_edit_code" ).autocomplete({
+                source: "/api/autocomplete/bc-codes",
                 autoFocus: true,
                 classes: {
-                    "ui-autocomplete": "list-group-item list-group-item-light"
+                    "ui-autocomplete": "list-group-item list-group-item-light ztopautocomplete ",
                 }
-            });*/
+            });
         },
         methods: {
             refresh(target = 'all'){
@@ -3817,8 +3816,8 @@ Vue.component(
                     )
                     .then(
                         (response) => {
+                            self.cur_method_code = null;
                             self.refresh();
-                            //self.on_select_method(self.methods);
                         }
                     ).catch(
                         (e) => {
@@ -3850,23 +3849,127 @@ Vue.component(
                 <div slot="body" class="w-100" >
                     <div class="input-group input-group-sm mb-3">
                         <span class="input-group-text">Code</span>
-                        <input readonly="readonly" v-model="payment_under_edit.code" type="text" class="form-control">
-                    </div>
-                    <div class="input-group input-group-sm mb-3">
-                        <span class="input-group-text">Method UID</span>
-                        <input v-model="payment_under_edit.method" type="text" class="form-control">
+                        <input id="payment_under_edit_code" v-model="payment_under_edit.code" type="text" class="form-control">
                         <span class="input-group-text">Currency</span>
                         <select class="form-select" v-model="payment_under_edit.cur">
                             <option v-for="cur in active_curs">[[ cur.value ]]</option>
                         </select>
                     </div>
-                    <div class="input-group input-group-sm mb-3">
-                        <span class="input-group-text">User-Friendly Name</span>
-                        <input v-model="payment_under_edit.name" type="text" class="form-control">
-                        <span class="input-group-text">Sub</span>
-                        <select class="form-select" v-model="payment_under_edit.cur">
-                            <option v-for="cur in active_curs">[[ cur.value ]]</option>
-                        </select>
+                    <div class="w-100">
+                        <div style="margin-left:10%;" class="text-center alert alert-primary">Template</div>
+                        <table style="margin-left:10%">
+                            <tr>
+                                <td style="width:25%;" class="text-center p-2 border rounded-5 border-1 border-secondary border-opacity-25 m-3">
+                                    <div class="w-100 text-center"><a href="">Change Icon</a></div>
+                                    <img v-if="cur_method.icon && !cur_method_icon_cleared" v-bind:src="cur_method.icon" style="width:100px;height:100px;"/>
+                                    <div class="w-100 text-center">
+                                        <a @click.prevent="on_clear_meth_icon()" 
+                                           v-if="cur_method.icon && !cur_method_icon_cleared" class="text-danger" href=""
+                                        >
+                                            x clear icon
+                                        </a>
+                                    </div>
+                                </td>
+                                <td></td>
+                                <td style="width: 70%;">
+                                    <div class="input-group input-group-sm mb-3">
+                                        
+                                        <span class="input-group-text">Code</span>
+                                        <span v-if="cur_method_mode != 'add'" @click.prevent="on_set_meth_mode('add')" class="btn btn-sm btn-success">+</span>
+                                        <span v-if="cur_method_mode != 'edit'" @click.prevent="on_set_meth_mode('edit')" class="btn btn-sm btn-warning">cancel</span>
+                                        <select v-if="cur_method_mode == 'edit'" class="form-select" v-model="cur_method.code" @change="on_select_method(cur_method.code)">
+                                            <option v-for="meth in methods">
+                                                [[ meth.code ]]
+                                            </option>
+                                        </select>
+                                        <input 
+                                            v-if="cur_method_mode == 'add'" 
+                                            v-model="cur_method.code" 
+                                            type="text" 
+                                            class="form-control" 
+                                            @keyup="cur_method_updated=true"
+                                            v-bind:class="{'border-5 border-danger': method_op_errors.code}"
+                                        >
+                                        
+                                        <span class="input-group-text">Name</span>
+                                        <input 
+                                            v-model="cur_method.name" 
+                                            type="text" 
+                                            class="form-control" 
+                                            @keyup="cur_method_updated=true"
+                                            v-bind:class="{'border-5 border-danger': method_op_errors.name}"
+                                        >
+                                        
+                                    </div>
+                                    <div class="input-group input-group-sm mb-3">
+                                        <span class="input-group-text">Category</span>
+                                        <select 
+                                            class="form-select" 
+                                            v-model="cur_method.category" 
+                                            @change="on_select_meth_category(cur_method.category)"
+                                            v-bind:class="{'border-5 border-danger': method_op_errors.category}"
+                                        >
+                                            <option v-for="ctg in method_categories">
+                                                [[ ctg ]]
+                                            </option>
+                                        </select>
+
+                                        <span class="input-group-text">Sub</span>
+                                        <select v-bind:disabled="avail_meth_subs == null" class="form-select" v-model="cur_method.sub" @change="cur_method_updated=true">
+                                            <option v-for="sub in avail_meth_subs">
+                                                [[ sub ]]
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div class="input-group input-group-sm mb-3">
+                                        <!--
+                                        <div class="form-check" style="margin-right:10px;">
+                                            <input v-model="cur_method_enabled" class="form-check-input" type="checkbox" @keyup="cur_method_updated=true" >
+                                            <label class="form-check-label" for="flexCheckDefault">
+                                                Enabled
+                                            </label>
+                                        </div>
+                                        -->
+                                        <span class="input-group-text">Explorer</span>
+                                        <input v-model="cur_method.explorer" type="text" class="form-control" @keyup="cur_method_updated=true">
+                                    </div>
+                                    <div class="w-100" v-if="cur_method_mode == 'edit'">
+                                        <span>Платежных методов используют: <b>[[ cur_method.payments_count ]]</b></span>
+                                        <button 
+                                            @click.prevent="delete_method(cur_method.code)"
+                                            v-bind:disabled="cur_method.payments_count > 0" 
+                                            class="btn btn-sm btn-danger"
+                                        >
+                                            x delete
+                                        </button>
+                                        <p v-if="cur_method.payments_count > 0" class="text-warning">
+                                            Вы не можете удалить шаблон если он используется в одном из методов
+                                        </p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                        <div class="w-100 text-center">
+                            <span class="text-danger">[[ method_op_error ]]</span>
+                            <br/>
+                            <button 
+                                v-if="!method_op_loading && cur_method_mode == 'edit'"
+                                @click.prevent="update_cur_method()" 
+                                v-bind:disabled="!cur_method_updated" 
+                                class="btn btn-sm btn-primary"
+                            >
+                                Update
+                            </button>
+                            <button 
+                                v-if="!method_op_loading && cur_method_mode == 'add'"
+                                @click.prevent="create_new_method"  
+                                class="btn btn-sm btn-danger"
+                            >
+                                Add
+                            </button>
+                            <loader-circle v-if="method_op_loading"></loader-circle>
+                        </div>
+                       
                     </div>
                 </div>
                 <div slot="footer" class="w-100 text-center"></div>
@@ -3944,120 +4047,7 @@ Vue.component(
                             
                         </table>
                     </div>
-                    <div class="w-100">
-                        <table>
-                            <tr>
-                                <td style="width:25%;" class="text-center p-2 border rounded-5 border-1 border-secondary border-opacity-25 m-3">
-                                    <div class="w-100 text-center"><a href="">Change Icon</a></div>
-                                    <img v-if="cur_method.icon && !cur_method_icon_cleared" v-bind:src="cur_method.icon" style="width:100px;height:100px;"/>
-                                    <div class="w-100 text-center">
-                                        <a @click.prevent="on_clear_meth_icon()" 
-                                           v-if="cur_method.icon && !cur_method_icon_cleared" class="text-danger" href=""
-                                        >
-                                            x clear icon
-                                        </a>
-                                    </div>
-                                </td>
-                                <td></td>
-                                <td style="width: 70%;">
-                                    <div class="input-group input-group-sm mb-3">
-                                        
-                                        <span class="input-group-text">Code</span>
-                                        <span v-if="cur_method_mode != 'add'" @click.prevent="on_set_meth_mode('add')" class="btn btn-sm btn-success">+</span>
-                                        <span v-if="cur_method_mode != 'edit'" @click.prevent="on_set_meth_mode('edit')" class="btn btn-sm btn-warning">cancel</span>
-                                        <select v-if="cur_method_mode == 'edit'" class="form-select" v-model="cur_method.code" @change="on_select_method(cur_method.code)">
-                                            <option v-for="meth in methods">
-                                                [[ meth.code ]]
-                                            </option>
-                                        </select>
-                                        <input 
-                                            v-if="cur_method_mode == 'add'" 
-                                            v-model="cur_method.code" 
-                                            type="text" 
-                                            class="form-control" 
-                                            @keyup="cur_method_updated=true"
-                                            v-bind:class="{'border-5 border-danger': method_op_errors.code}"
-                                        >
-                                        
-                                        <span class="input-group-text">Name</span>
-                                        <input 
-                                            v-model="cur_method.name" 
-                                            type="text" 
-                                            class="form-control" 
-                                            @keyup="cur_method_updated=true"
-                                            v-bind:class="{'border-5 border-danger': method_op_errors.name}"
-                                        >
-                                        
-                                        <span class="input-group-text">Category</span>
-                                        <select 
-                                            class="form-select" 
-                                            v-model="cur_method.category" 
-                                            @change="on_select_meth_category(cur_method.category)"
-                                            v-bind:class="{'border-5 border-danger': method_op_errors.category}"
-                                        >
-                                            <option v-for="ctg in method_categories">
-                                                [[ ctg ]]
-                                            </option>
-                                        </select>
-
-                                        <span class="input-group-text">Sub</span>
-                                        <select v-bind:disabled="avail_meth_subs == null" class="form-select" v-model="cur_method.sub" @change="cur_method_updated=true">
-                                            <option v-for="sub in avail_meth_subs">
-                                                [[ sub ]]
-                                            </option>
-                                        </select>
-                                        
-                                    </div>
-                                    <div class="input-group input-group-sm mb-3">
-                                        <!--
-                                        <div class="form-check" style="margin-right:10px;">
-                                            <input v-model="cur_method_enabled" class="form-check-input" type="checkbox" @keyup="cur_method_updated=true" >
-                                            <label class="form-check-label" for="flexCheckDefault">
-                                                Enabled
-                                            </label>
-                                        </div>
-                                        -->
-                                        <span class="input-group-text">Explorer</span>
-                                        <input v-model="cur_method.explorer" type="text" class="form-control" @keyup="cur_method_updated=true">
-                                    </div>
-                                    <div class="w-100" v-if="cur_method_mode == 'edit'">
-                                        <span>Платежных методов используют: <b>[[ cur_method.payments_count ]]</b></span>
-                                        <button 
-                                            @click.prevent="delete_method(cur_method.code)"
-                                            v-bind:disabled="cur_method.payments_count > 0" 
-                                            class="btn btn-sm btn-danger"
-                                        >
-                                            x delete
-                                        </button>
-                                        <p v-if="cur_method.payments_count > 0" class="text-warning">
-                                            Вы не можете удалить шаблон если он используется в одном из методов
-                                        </p>
-                                    </div>
-                                </td>
-                            </tr>
-                        </table>
-                        <div class="w-100 text-center">
-                            <span class="text-danger">[[ method_op_error ]]</span>
-                            <br/>
-                            <button 
-                                v-if="!method_op_loading && cur_method_mode == 'edit'"
-                                @click.prevent="update_cur_method()" 
-                                v-bind:disabled="!cur_method_updated" 
-                                class="btn btn-sm btn-primary"
-                            >
-                                Update
-                            </button>
-                            <button 
-                                v-if="!method_op_loading && cur_method_mode == 'add'"
-                                @click.prevent="create_new_method"  
-                                class="btn btn-sm btn-danger"
-                            >
-                                Add
-                            </button>
-                            <loader-circle v-if="method_op_loading"></loader-circle>
-                        </div>
-                       
-                    </div>
+                    
                     <data-table
                         ref="table"
                         style="text-align: left;"

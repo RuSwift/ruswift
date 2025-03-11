@@ -32,7 +32,10 @@ class ForexSettings(RatioEngineSettings):
 
 class CEXSettings(RatioEngineSettings):
     scope: str = 'cex'
-    engines: List[str] = ['ratios.HTXEngine', 'ratios.GarantexEngine']  # noqa
+    engines: List[str] = [
+        'ratios.HTXEngine', 
+        #'ratios.GarantexEngine'
+    ] 
 
 
 class P2PRatioSettings(RatioEngineSettings):
@@ -40,7 +43,10 @@ class P2PRatioSettings(RatioEngineSettings):
     amount: Optional[Amount] = Field(default_factory=Amount)
     # игнорировать записи с соотношением min,max amount val меньше значения
     ignore_ratio_minmax: Optional[float] = 0.9
-    engines: List[str] = ['ratios.HTXP2P', 'ratios.GarantexP2P']  # noqa
+    engines: List[str] = [
+        'ratios.HTXP2P', 
+        # 'ratios.GarantexP2P'
+    ]
     pay_methods: Optional[List[str]] = ['CASHRUB', 'SBPRUB', 'SBERRUB']
 
 
